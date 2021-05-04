@@ -1,0 +1,7 @@
+- 👋 Hi, I’m @ParvinYagubzada
+- 👀 I’m interested in everything.
+- 🌱 I’m currently learning JAVA.
+- 💞️ I’m looking to collaborate on Web applications.
+- 📫 How to reach me pyaqubzadee@gmail.com
+- 📫 How to reach me parvinyy@code.edu.az
+- 📫 How to reach me pyaqubzade@beu.edu.az
