@@ -2,16 +2,14 @@ package az.code;
 
 import az.code.store.*;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.InputMismatchException;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
-
     public static Scanner scanner = new Scanner(System.in);
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_RED = "\u001B[31m";
     private static final Bravo bravo = new Bravo();
     public static final String start = "Please select one of selections:\n";
     public static final String end = "Your selection:\t";
@@ -43,7 +41,7 @@ public class Main {
     static {
         Random random = new Random();
         for (int i = 0; i < 100; i++) {
-            bravo.addItem("Item" + i, random.nextDouble(), Category.values()[random.nextInt(4)], random.nextInt());
+            bravo.addItem("Item" + i, random.nextDouble(), Category.values()[random.nextInt(4)], Math.abs(random.nextInt()));
         }
     }
 
@@ -51,16 +49,20 @@ public class Main {
         mainOperation(0);
     }
 
-    public static void printMenu(String menu) {
+    private static void printMenu(String menu) {
         System.out.print(start + menu + end);
     }
 
-    public static void printSelectionError() {
-        System.out.print(ANSI_RED + "You can't select number other than provided.\n" + ANSI_RESET);
+    private static void printError(String error) {
+        System.out.println(Color.RED.asString + error + Color.RESET.asString);
     }
 
-    public static void printInputMismatchError() {
-        System.out.print(ANSI_RED + "Your input was incorrect.\n" + ANSI_RESET);
+    private static void printSelectionError() {
+        printError("You can't select number other than provided.");
+    }
+
+    private static void printInputMismatchError() {
+        printError("Your input was incorrect.");
     }
 
     public static void mainOperation(int userInput) {
@@ -77,6 +79,7 @@ public class Main {
                     case 2:
                         printMenu(processOnPurchases);
                         input = scanner.nextInt();
+                        scanner.nextLine();
                         operationOnPurchase(input);
                         break;
                     default:
@@ -90,59 +93,37 @@ public class Main {
         }
     }
 
-    private static void operationOnPurchase(int selection) {
-        switch (selection) {
-            case 1:
-                System.out.println("You selected: Add new purchase.\nPlease provide program with item ids");
-                int count = 1;
-                String input = "end";
-                do {
-                    System.out.print("Enter item id: ");
-                    long id = Long.parseLong(scanner.next());
-                    if (bravo.getItem())
-                    System.out.println("Enter item quantity: ");
-                    int quantity = scanner.nextInt();
-                    PurchaseItem item = new PurchaseItem();
-                } while (!input.equals("end"));
-//                bravo.addPurchase();
-        }
-    }
-
-    public static void addPurchaseItem(String input) {
-
-    }
-
     public static void operationOnItem(int selection) {
         switch (selection) {
             case 1:
-                System.out.println("You selected: Add new item.");
+                System.out.println("You selected: " + Color.PURPLE.asString + "Add new item." + Color.RESET.asString);
                 Item temp = getItemFromUser();
                 bravo.addItem(temp.getName(), temp.getPrice(), temp.getCategory(), temp.getQuantity());
                 break;
             case 2:
-                System.out.println("You selected: Edit item.");
+                System.out.println("You selected: " + Color.PURPLE.asString + "Edit item." + Color.RESET.asString);
                 System.out.print("Please enter item id: ");
                 long id = scanner.nextLong();
                 temp = getItemFromUser();
                 bravo.editItem(id, temp.getName(), temp.getPrice(), temp.getCategory(), temp.getQuantity());
                 break;
             case 3:
-                System.out.println("You selected: Remove item.");
+                System.out.println("You selected: " + Color.PURPLE.asString + "Remove item." + Color.RESET.asString);
                 System.out.print("Please enter item id: ");
                 id = scanner.nextLong();
                 bravo.removeItem(id);
                 break;
             case 4:
-                System.out.println("You selected: Select all items.");
+                System.out.println("You selected: " + Color.PURPLE.asString + "Select all items." + Color.RESET.asString);
                 printAllItems(bravo.getAllItems());
                 break;
             case 5:
-                System.out.println("You selected: Select items by categories.");
+                System.out.println("You selected: " + Color.PURPLE.asString + "Select items by categories." + Color.RESET.asString);
                 Category category = getCategory();
                 printAllItems(bravo.getItems(category));
                 break;
             case 6:
-                System.out.println("You selected: Select items by price range.");
+                System.out.println("You selected: " + Color.PURPLE.asString + "Select items by price range." + Color.RESET.asString);
                 System.out.print("Please enter min price: ");
                 double min = scanner.nextDouble();
                 System.out.print("Please enter max price: ");
@@ -150,7 +131,7 @@ public class Main {
                 printAllItems(bravo.getItems(min, max));
                 break;
             case 7:
-                System.out.println("You selected: Select items by item name.");
+                System.out.println("You selected: " + Color.PURPLE.asString + "Select items by item name." + Color.RESET.asString);
                 System.out.println("Please enter word you are searching for: ");
                 String word = scanner.next();
                 printAllItems(bravo.getItems(word));
@@ -160,18 +141,65 @@ public class Main {
         }
     }
 
-    public static Item getItemFromUser() {
-        System.out.print("Please enter the item name: ");
-        String name = scanner.next();
-        System.out.print("Please enter item price: ");
-        double price = scanner.nextDouble();
-        Category category = getCategory();
-        System.out.print("Please enter quantity: ");
-        int quantity = scanner.nextInt();
-        return new Item(name, price, category, quantity, -1);
+    public static void operationOnPurchase(int selection) {
+        switch (selection) {
+            case 1:
+                System.out.println("You selected: " + Color.PURPLE.asString + "Add new purchase.\n" + Color.RESET.asString +
+                        "Please provide program with item IDs. " +
+                        "When you finish adding items then write -1 to end adding process.");
+                int count = 1;
+                Purchase purchase = new Purchase(LocalDate.now());
+                getIds(purchase, count);
+                break;
+            case 2:
+                System.out.println("You selected: " + Color.PURPLE.asString + "Return item." + Color.RESET.asString);
+                System.out.print("Enter purchase in order to see items: ");
+                long id = scanner.nextLong();
+                purchase = bravo.getPurchase(id);
+                for (PurchaseItem item : purchase.getPurchaseItems().values()) {
+                    System.out.println(item);
+                }
+                System.out.print("Enter number of items you want to return: ");
+                int number = scanner.nextInt();
+                for (int i = 0; i < number; i++) {
+                    System.out.print("Enter item ID: ");
+                    long itemID = scanner.nextLong();
+
+                }
+        }
     }
 
-    public static void printAllItems(Collection<Item> items) {
+    private static void getIds(Purchase purchase, int count) {
+        System.out.print("ID of item " + count + ": ");
+        try {
+            long id = scanner.nextLong();
+            scanner.nextLine();
+            if (id == -1)
+                return;
+            Item item = bravo.getItem(id);
+            if (item != null) {
+                System.out.print("Enter item quantity: ");
+                int quantity = scanner.nextInt();
+                scanner.nextLine();
+                try {
+                    PurchaseItem purchaseItem = new PurchaseItem(item, quantity);
+                    purchase.addPurchaseItem(purchaseItem);
+                    getIds(purchase, count + 1);
+                } catch (PurchaseItem.OutOfStockException e) {
+                    System.out.println(e.getMessage());
+                }
+            } else {
+                printError("Item not found!");
+                getIds(purchase, count);
+            }
+        } catch (Exception e) {
+            scanner.nextLine();
+            printInputMismatchError();
+            getIds(purchase, count);
+        }
+    }
+
+    private static void printAllItems(Collection<Item> items) {
         System.out.println("Items:\n");
         for (Item item : items) {
             System.out.format("\tID=%10d \tNAME=%15s \tCATEGORY=%20s \tQUANTITY=%15d \tPRICE=%10.2f\n",
@@ -184,7 +212,25 @@ public class Main {
         System.out.println();
     }
 
-    public static Category getCategory() {
+    private static Item getItemFromUser() {
+        System.out.print("Please enter the item name: ");
+        scanner.nextLine();
+        String name = scanner.nextLine();
+        System.out.print("Please enter item price: ");
+        double price = scanner.nextDouble();
+        Category category = getCategory();
+        System.out.print("Please enter quantity: ");
+        int quantity = scanner.nextInt();
+        Item item = null;
+        try {
+            item = new Item(name, price, category, quantity, -1);
+        } catch (InputMismatchException exception) {
+            printError(exception.getMessage());
+        }
+        return item;
+    }
+
+    private static Category getCategory() {
         System.out.println("Please select one of Categories: ");
         Category.printCats();
         System.out.print(end);

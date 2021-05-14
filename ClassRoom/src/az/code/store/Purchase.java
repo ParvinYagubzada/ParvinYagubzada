@@ -1,21 +1,33 @@
 package az.code.store;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Purchase {
     private final long id;
-    private final Map<Long, PurchaseItem> purchaseItem;
-    private final double amount;
+    private final Map<Long, PurchaseItem> purchaseItems;
+    private double amount;
     private final LocalDate purchaseDate;
 
-    public Purchase(long id, PurchaseItem purchaseItem, Map<Long, PurchaseItem> purchaseItems, double amount, LocalDate purchaseDate) {
-        this.id = id;
-        this.purchaseItem = purchaseItems;
-        this.amount = amount;
+    public Purchase(LocalDate purchaseDate) {
+        this.id = IdGenerator.getID();
+        this.purchaseItems = new HashMap<>();
+        this.amount = 0.0;
         this.purchaseDate = purchaseDate;
+    }
+
+    public void addPurchaseItem(PurchaseItem item) {
+        this.purchaseItems.put(item.getId(), item);
+        this.amount += (item.getPrice() * item.getQuantity());
+    }
+
+    public boolean returnItem(long id, int quantity) {
+        PurchaseItem item = purchaseItems.get(id);
+        if (item != null) {
+            return item.returnItem(quantity);
+        }
+        return false;
     }
 
     public long getId() {
@@ -27,7 +39,7 @@ public class Purchase {
     }
 
     public Map<Long, PurchaseItem> getPurchaseItems() {
-        return purchaseItem;
+        return purchaseItems;
     }
 
     public LocalDate getPurchaseDate() {

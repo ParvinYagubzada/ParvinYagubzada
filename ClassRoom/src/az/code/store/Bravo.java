@@ -79,9 +79,8 @@ public class Bravo implements Marketable {
     }
 
     @Override
-    public void removeItem(long purchaseItemId, long purchaseId) {
-        Purchase purchase = purchases.get(purchaseItemId);
-        purchase.getPurchaseItems().remove(purchaseItemId);
+    public void removeItem(Purchase purchase, long itemId, int quantity) {
+        purchase.returnItem(itemId, quantity);
     }
 
     @Override

@@ -23,7 +23,7 @@ public interface Marketable {
 
     void addPurchase(Purchase purchase);
 
-    void removeItem(long purchaseItemId, long purchaseId);
+    void removeItem(Purchase purchase, long itemId, int quantity);
 
     void removePurchase(long purchaseId);
 

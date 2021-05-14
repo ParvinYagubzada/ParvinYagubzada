@@ -1,5 +1,7 @@
 package az.code.store;
 
+import java.util.InputMismatchException;
+
 public class Item {
     private final long id;
     private String name;
@@ -9,9 +11,9 @@ public class Item {
 
     public Item(String name, double price, Category category, int quantity, long id) {
         this.name = name;
-        this.price = price;
+        setPrice(price);
         this.category = category;
-        this.quantity = quantity;
+        setQuantity(quantity);
         this.id = id;
     }
 
@@ -32,7 +34,10 @@ public class Item {
     }
 
     public void setPrice(double price) {
-        this.price = price;
+        if (price < 0)
+            throw new InputMismatchException("You can't set negative price.");
+        else
+            this.price = price;
     }
 
     public Category getCategory() {
@@ -40,7 +45,10 @@ public class Item {
     }
 
     public void setQuantity(int quantity) {
-        this.quantity = quantity;
+        if (quantity < 0)
+            throw new InputMismatchException("You can't set negative quantity.");
+        else
+            this.quantity = quantity;
     }
 
     public void setCategory(Category category) {
@@ -52,6 +60,6 @@ public class Item {
     }
 
     public void reduceQuantity(int quantity) {
-        this.quantity = quantity;
+        this.quantity -= quantity;
     }
 }

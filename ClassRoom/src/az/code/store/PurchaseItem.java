@@ -2,17 +2,26 @@ package az.code.store;
 
 public class PurchaseItem {
     private final long id;
+    private final double price;
     private final Item item;
-    private final int quantity;
+    private int quantity;
 
-    public PurchaseItem(Item item, int quantity) throws Exception {
+    public PurchaseItem(Item item, int quantity) throws OutOfStockException {
         this.id = IdGenerator.getID();
-        if (quantity > item.getQuantity())
-            throw new OutOfStockException();
-        else
-            item.reduceQuantity(quantity);
         this.item = item;
         this.quantity = quantity;
+        if (quantity > item.getQuantity()) {
+            throw new OutOfStockException(item.getQuantity());
+        } else {
+            item.reduceQuantity(quantity);
+            this.price = this.item.getPrice();
+        }
+    }
+
+    public boolean returnItem(int quantity) {
+        if (quantity <= this.quantity)
+            this.quantity -= quantity;
+        return false;
     }
 
     public long getId() {
@@ -23,13 +32,26 @@ public class PurchaseItem {
         return item;
     }
 
+    public double getPrice() {
+        return price;
+    }
+
     public int getQuantity() {
         return quantity;
     }
 
-    static class OutOfStockException extends Exception {
-        public OutOfStockException() {
-            super("This item out of stock and you cant purchase it!");
+    @Override
+    public String toString() {
+        return String.format("Item \tName= %s \tID= %d \tPrice= %.2f \tQuantity= %d",
+                item.getName(),
+                id,
+                price,
+                quantity);
+    }
+
+    public static class OutOfStockException extends Exception {
+        public OutOfStockException(int maxQuantity) {
+            super("Quantity you want exceeds our stock quantity. Max quantity is: " + maxQuantity);
         }
     }
 }
