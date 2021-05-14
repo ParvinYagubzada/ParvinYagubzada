@@ -1,4 +1,4 @@
-package az.code;
+package az.code.cache;
 
 class Node<T> {
     private T value;

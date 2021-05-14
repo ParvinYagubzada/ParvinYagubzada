@@ -1,8 +1,8 @@
-package az.code;
+package az.code.cache;
 
 import java.util.Iterator;
 
-class Cache<T> implements ICache<T>, Iterable<T> {
+public class Cache<T> implements ICache<T>, Iterable<T> {
     private Node<T> head;
     private Node<T> last;
     private final int capacity;
