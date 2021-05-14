@@ -1,6 +1,7 @@
 package az.code.store;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 import java.util.List;
@@ -29,9 +30,9 @@ public interface Marketable {
 
     Collection<Purchase> getAllPurchases();
 
-    List<Purchase> getPurchases(LocalDate start, LocalDate end);
+    List<Purchase> getPurchases(LocalDateTime start, LocalDateTime end);
 
-    List<Purchase> getPurchases(LocalDate date);
+    List<Purchase> getPurchases(LocalDateTime time);
 
     List<Purchase> getPurchases(double minAmount, double maxAmount);
 

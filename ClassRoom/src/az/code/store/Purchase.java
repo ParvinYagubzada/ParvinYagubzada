@@ -1,6 +1,6 @@
 package az.code.store;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,13 +8,13 @@ public class Purchase {
     private final long id;
     private final Map<Long, PurchaseItem> purchaseItems;
     private double amount;
-    private final LocalDate purchaseDate;
+    private final LocalDateTime purchaseTime;
 
-    public Purchase(LocalDate purchaseDate) {
+    public Purchase(LocalDateTime purchaseDate) {
         this.id = IdGenerator.getID();
         this.purchaseItems = new HashMap<>();
         this.amount = 0.0;
-        this.purchaseDate = purchaseDate;
+        this.purchaseTime = purchaseDate;
     }
 
     public void addPurchaseItem(PurchaseItem item) {
@@ -42,7 +42,7 @@ public class Purchase {
         return purchaseItems;
     }
 
-    public LocalDate getPurchaseDate() {
-        return purchaseDate;
+    public LocalDateTime getPurchaseDate() {
+        return purchaseTime;
     }
 }

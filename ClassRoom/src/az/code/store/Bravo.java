@@ -1,6 +1,6 @@
 package az.code.store;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class Bravo implements Marketable {
@@ -94,7 +94,7 @@ public class Bravo implements Marketable {
     }
 
     @Override
-    public List<Purchase> getPurchases(LocalDate start, LocalDate end) {
+    public List<Purchase> getPurchases(LocalDateTime start, LocalDateTime end) {
         ArrayList<Purchase> purchasesByTime = new ArrayList<>();
         for (Purchase purchase : purchases.values()) {
             if (start.isBefore(purchase.getPurchaseDate()) && end.isAfter(purchase.getPurchaseDate()))
@@ -104,10 +104,10 @@ public class Bravo implements Marketable {
     }
 
     @Override
-    public List<Purchase> getPurchases(LocalDate date) {
+    public List<Purchase> getPurchases(LocalDateTime time) {
         ArrayList<Purchase> purchasesByTime = new ArrayList<>();
         for (Purchase purchase : purchases.values()) {
-            if (date.equals(purchase.getPurchaseDate()))
+            if (time.equals(purchase.getPurchaseDate()))
                 purchasesByTime.add(purchase);
         }
         return purchasesByTime;
