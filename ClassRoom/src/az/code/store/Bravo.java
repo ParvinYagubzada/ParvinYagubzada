@@ -36,7 +36,11 @@ public class Bravo implements Marketable {
 
     @Override
     public void removeItem(long id) {
-        items.remove(id);
+        if (items.containsKey(id)) {
+            items.remove(id);
+        } else {
+            throw new NoSuchElementException();
+        }
     }
 
     @Override

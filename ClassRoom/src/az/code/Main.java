@@ -118,6 +118,8 @@ public class Main {
                 if (e instanceof InputMismatchException) {
                     scanner.nextLine();
                     printInputMismatchError();
+                } else if (e instanceof NoSuchElementException) {
+                    printError("This item does not exist!");
                 }
                 mainOperation(0);
             }
@@ -435,9 +437,9 @@ public class Main {
         Category.printCats();
         System.out.print(end);
         int selection = scanner.nextInt();
-        if (selection > Category.values().length) {
+        if (selection < 0 || selection > Category.values().length) {
             printSelectionError();
-            getCategory();
+            return getCategory();
         }
         return Category.values()[selection - 1];
     }
