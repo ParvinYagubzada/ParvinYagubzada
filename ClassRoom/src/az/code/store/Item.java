@@ -1,8 +1,9 @@
 package az.code.store;
 
+import java.util.Comparator;
 import java.util.InputMismatchException;
 
-public class Item {
+public class Item implements Comparable<Item> {
     private final long id;
     private String name;
     private double price;
@@ -15,6 +16,23 @@ public class Item {
         this.category = category;
         setQuantity(quantity);
         this.id = id;
+    }
+
+    public static Comparator<Item>[] orders = new Comparator[6];
+    public static Comparator<Item> sortByPrice = (base, second) -> (int) (base.price - second.price);
+    public static Comparator<Item> sortByPriceDESC = (base, second) -> (int) (second.price - base.price);
+    public static Comparator<Item> sortByCategory = (base, second) -> base.category.getStringFormat().compareTo(second.category.getStringFormat());
+    public static Comparator<Item> sortByCategoryDESC = (base, second) -> second.category.getStringFormat().compareTo(base.category.getStringFormat());
+    public static Comparator<Item> sortByQuantity = (base, second) -> base.quantity - second.quantity;
+    public static Comparator<Item> sortByQuantityDESC = (base, second) -> second.quantity - base.quantity;
+
+    static {
+        orders[0] = sortByPrice;
+        orders[1] = sortByPriceDESC;
+        orders[2] = sortByCategory;
+        orders[3] = sortByCategoryDESC;
+        orders[4] = sortByQuantity;
+        orders[5] = sortByQuantityDESC;
     }
 
     public long getId() {
@@ -65,5 +83,10 @@ public class Item {
 
     public void increaseQuantity(int quantity) {
         this.quantity += quantity;
+    }
+
+    @Override
+    public int compareTo(Item second) {
+        return (int) (id - second.id);
     }
 }

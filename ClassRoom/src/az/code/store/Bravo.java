@@ -44,8 +44,10 @@ public class Bravo implements Marketable {
     }
 
     @Override
-    public Collection<Item> getAllItems() {
-        return items.values();
+    public List<Item> getAllItems(int count) {
+        if (count > items.size())
+            count = items.size();
+        return new LinkedList<>(items.values()).subList(0, count);
     }
 
     @Override

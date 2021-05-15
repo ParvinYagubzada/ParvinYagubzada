@@ -41,11 +41,24 @@ public class Main {
                         
             \t0. Back.
             """ + Color.RESET.asString;
+    public static final String orders = Color.BLUE.asString + """
+            \t\t SORT BY:
+            \t1. Price.
+            \t2. Descending Price.
+            \t3. Category
+            \t4. Descending Category.
+            \t5. Quantity
+            \t6. Descending Quantity.
+            \t7. ID (Default)
+            """ + Color.RESET.asString;
 
     static {
         Random random = new Random();
         for (int i = 0; i < 100; i++) {
-            bravo.addItem("Item" + i, random.nextDouble(), Category.values()[random.nextInt(4)], Math.abs(random.nextInt()));
+            bravo.addItem("Item" + i,
+                    random.nextDouble() * Math.pow(10, Math.abs(random.nextInt(4)) + 1),
+                    Category.values()[random.nextInt(4)],
+                    Math.abs(random.nextInt(10000)) + 1);
         }
         for (int i = 0; i < 20; i++) {
             int year = random.nextInt(20) + 2000;
@@ -120,6 +133,8 @@ public class Main {
                     printInputMismatchError();
                 } else if (e instanceof NoSuchElementException) {
                     printError("This item does not exist!");
+                } else {
+                    System.out.println(e.getClass().getSimpleName()); //TODO 1: DELETE AFTER TESTING!
                 }
                 mainOperation(0);
             }
@@ -151,7 +166,16 @@ public class Main {
                 break;
             case 4:
                 printSelected("Select all items.");
-                printAllItems(bravo.getAllItems());
+                System.out.print("How many items you want to see: ");
+                int count = scanner.nextInt();
+                scanner.nextLine();
+                String input = askForConfirmation();
+                switch (input) {
+                    case "Y":
+                        printOrderedItems(count);
+                    case "N":
+                        printAllItems(bravo.getAllItems(count));
+                }
                 break;
             case 5:
                 printSelected("Select items by categories.");
@@ -360,6 +384,49 @@ public class Main {
             printPurchase(purchase);
         }
         System.out.println();
+    }
+
+    private static String askForConfirmation() throws InputMismatchException {
+        System.out.print("Do you want to sort items? Y/N: ");
+        String input = scanner.nextLine().toUpperCase();
+        if (input.equals("Y") || input.equals("N"))
+            return input;
+        printInputMismatchError();
+        return "";
+    }
+
+    private static void printOrderedItems(int count) {
+        int orderSelection = getOrderSelection();
+        if (orderSelection < 7 && orderSelection > 0) {
+            Comparator<Item> order = Item.orders[orderSelection - 1];
+            try {
+                List<Item> elements = new ArrayList<>(bravo.getAllItems(count));
+                elements.sort(order);
+                printAllItems(elements);
+            } catch (IndexOutOfBoundsException e) {
+                printError("You can't request items more than you have.");
+            }
+        } else {
+            printAllItems(bravo.getAllItems(count));
+        }
+    }
+
+    private static int getOrderSelection() {
+        System.out.println("Predefined orders:");
+        System.out.println(orders);
+        System.out.print(end);
+        try {
+            int selection = scanner.nextInt();
+            if (selection > 7 || selection < 1) {
+                printSelectionError();
+                getOrderSelection();
+            }
+            return selection;
+        } catch (InputMismatchException e) {
+            scanner.nextLine();
+            printInputMismatchError();
+            return getOrderSelection();
+        }
     }
 
     private static long getId(String specification) {

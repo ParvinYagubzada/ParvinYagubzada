@@ -14,7 +14,7 @@ public interface Marketable {
 
     void removeItem(long id);
 
-    Collection<Item> getAllItems();
+    Collection<Item> getAllItems(int count);
 
     List<Item> getItems(Category category);
 
