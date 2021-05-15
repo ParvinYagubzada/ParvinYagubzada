@@ -1,10 +1,11 @@
 package az.code.store;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class Bravo implements Marketable {
-
+    private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private final HashMap<Long, Purchase> purchases;
     private final HashMap<Long, Item> items;
 
@@ -107,7 +108,7 @@ public class Bravo implements Marketable {
     public List<Purchase> getPurchases(LocalDateTime time) {
         ArrayList<Purchase> purchasesByTime = new ArrayList<>();
         for (Purchase purchase : purchases.values()) {
-            if (time.equals(purchase.getPurchaseDate()))
+            if (time.format(dateFormat).equals(purchase.getPurchaseDate().format(dateFormat)))
                 purchasesByTime.add(purchase);
         }
         return purchasesByTime;

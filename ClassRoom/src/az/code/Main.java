@@ -2,9 +2,9 @@ package az.code;
 
 import az.code.store.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Collection;
 import java.util.InputMismatchException;
 import java.util.Random;
@@ -76,6 +76,11 @@ public class Main {
         System.out.println(Color.RED.asString + error + Color.RESET.asString);
     }
 
+    private static void printSelected(String selected) {
+        String youSelected = "You selected: ";
+        System.out.println(youSelected + Color.PURPLE.asString + selected + Color.RESET.asString);
+    }
+
     private static void printSelectionError() {
         printError("You can't select number other than provided.");
     }
@@ -117,34 +122,34 @@ public class Main {
     public static void operationOnItem(int selection) throws Exception {
         switch (selection) {
             case 1:
-                System.out.println("You selected: " + Color.PURPLE.asString + "Add new item." + Color.RESET.asString);
+                printSelected("Add new item.");
                 Item temp = getItemFromUser();
                 bravo.addItem(temp.getName(), temp.getPrice(), temp.getCategory(), temp.getQuantity());
                 break;
             case 2:
-                System.out.println("You selected: " + Color.PURPLE.asString + "Edit item." + Color.RESET.asString);
+                printSelected("Edit item.");
                 System.out.print("Please enter item id: ");
                 long id = scanner.nextLong();
                 temp = getItemFromUser();
                 bravo.editItem(id, temp.getName(), temp.getPrice(), temp.getCategory(), temp.getQuantity());
                 break;
             case 3:
-                System.out.println("You selected: " + Color.PURPLE.asString + "Remove item." + Color.RESET.asString);
+                printSelected("Remove item.");
                 System.out.print("Please enter item id: ");
                 id = scanner.nextLong();
                 bravo.removeItem(id);
                 break;
             case 4:
-                System.out.println("You selected: " + Color.PURPLE.asString + "Select all items." + Color.RESET.asString);
+                printSelected("Select all items.");
                 printAllItems(bravo.getAllItems());
                 break;
             case 5:
-                System.out.println("You selected: " + Color.PURPLE.asString + "Select items by categories." + Color.RESET.asString);
+                printSelected("Select items by categories.");
                 Category category = getCategory();
                 printAllItems(bravo.getItems(category));
                 break;
             case 6:
-                System.out.println("You selected: " + Color.PURPLE.asString + "Select items by price range." + Color.RESET.asString);
+                printSelected("Select items by price range.");
                 System.out.print("Please enter min price: ");
                 double min = scanner.nextDouble();
                 System.out.print("Please enter max price: ");
@@ -152,7 +157,7 @@ public class Main {
                 printAllItems(bravo.getItems(min, max));
                 break;
             case 7:
-                System.out.println("You selected: " + Color.PURPLE.asString + "Select items by item name." + Color.RESET.asString);
+                printSelected("Select items by item name.");
                 System.out.println("Please enter word you are searching for: ");
                 String word = scanner.next();
                 printAllItems(bravo.getItems(word));
@@ -165,7 +170,7 @@ public class Main {
     public static void operationOnPurchase(int selection) {
         switch (selection) {
             case 1:
-                System.out.println("You selected: " + Color.PURPLE.asString + "Add new purchase.\n" + Color.RESET.asString +
+                printSelected("Add new purchase.\n" +
                         "Please provide program with item IDs. " +
                         "When you finish adding items then write -1 to end adding process.");
                 int count = 1;
@@ -174,7 +179,7 @@ public class Main {
                 bravo.addPurchase(purchase);
                 break;
             case 2:
-                System.out.println("You selected: " + Color.PURPLE.asString + "Return item." + Color.RESET.asString);
+                printSelected("Return item.");
                 System.out.print("Enter purchase ID in order to see items: ");
                 long id = scanner.nextLong();
                 purchase = bravo.getPurchase(id);
@@ -190,10 +195,63 @@ public class Main {
                 }
                 break;
             case 4:
-                System.out.println("You selected: " + Color.PURPLE.asString + "Select all purchases." + Color.RESET.asString);
+                printSelected("Select all purchases.");
                 printALlPurchases(bravo.getAllPurchases());
                 break;
+            case 5:
+                printSelected("Select purchases by Date range.");
+                printALlPurchases(bravo.getPurchases(getDate("start"), getDate("end")));
+                break;
+            case 6:
+                printSelected("Select purchases by price range.");
+                double min = getPrice("minimum");
+                double max = getPrice("maximum");
+                if (min >= max)
+                    printError("Minimum amount can't be larger than maximum amount.");
+                else
+                    printALlPurchases(bravo.getPurchases(min, max));
+                break;//TODO
+            case 7:
+                printSelected("Select purchases by Date.");
+                printALlPurchases(bravo.getPurchases(getDate("purchase")));
+                break;
+            case 8:
+                printSelected("Select purchases by id.");
+                break;//TODO
+            default:
+                printSelectionError();
         }
+    }
+
+    private static double getPrice(String specification) {
+        System.out.print("Enter " + specification + " amount: ");
+        double amount = 0.0;
+        try {
+            amount = scanner.nextDouble();
+        } catch (InputMismatchException e) {
+            scanner.nextLine();
+            printInputMismatchError();
+            getPrice(specification);
+        }
+        return amount;
+    }
+
+    private static LocalDateTime getDate(String specification) {
+        System.out.print("Enter " + specification + " date: ");
+        String extension;
+        if (specification.equals("end"))
+            extension = " 23:59";
+        else
+            extension = " 00:01";
+        StringBuilder input = new StringBuilder(scanner.nextLine()).append(extension);
+        LocalDateTime date = null;
+        try {
+            date = LocalDateTime.parse(input, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
+        } catch (DateTimeParseException e) {
+            printError("Your input was incorrect. Please enter date with this format XX.XX.XXXX");
+            getDate(specification);
+        }
+        return date;
     }
 
     private static void getIds(Purchase purchase, int count) {
