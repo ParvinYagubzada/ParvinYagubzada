@@ -5,40 +5,42 @@ import az.code.store.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Collection;
-import java.util.InputMismatchException;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
-    public static Scanner scanner = new Scanner(System.in);
+    private static final Scanner scanner = new Scanner(System.in);
     private static final Bravo bravo = new Bravo();
     public static final String start = "Please select one of selections:\n";
     public static final String end = "Your selection:\t";
-    public static final String menu = """
+    public static final String menu = Color.BLUE.asString + """
             \t1. Processes on Items.
-            \t2. Processes on Purchases.
-            \t3. Exit.
-            """;
-    public static final String processOnItems = """
+            \t2. Processes on Purchases.""" + Color.YELLOW.asString + """
+                        
+            \t0. Exit.
+            """ + Color.RESET.asString;
+    public static final String processOnItems = Color.BLUE.asString + """
             \t1. Add new item.
             \t2. Edit item.
             \t3. Remove item.
             \t4. Select all items.
             \t5. Select items by categories.
             \t6. Select items by price range.
-            \t7. Select items by item name.
-            """;
-    public static final String processOnPurchases = """
+            \t7. Select items by item name.""" + Color.YELLOW.asString + """
+                        
+            \t0. Back.
+            """ + Color.RESET.asString;
+    public static final String processOnPurchases = Color.BLUE.asString + """
             \t1. Add new purchase.
             \t2. Return item.
-            \t3. Remove purchase.
+            \t3. Return purchase.
             \t4. Select all purchases.
             \t5. Select purchases by Date range.
             \t6. Select purchases by price range.
             \t7. Select purchases by Date.
-            \t8. Select purchase by id.
-            """;
+            \t8. Select purchase by id.""" + Color.YELLOW.asString + """
+                        
+            \t0. Back.
+            """ + Color.RESET.asString;
 
     static {
         Random random = new Random();
@@ -65,7 +67,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        mainOperation(0);
+        mainOperation(1);
     }
 
     private static void printMenu(String menu) {
@@ -90,11 +92,14 @@ public class Main {
     }
 
     public static void mainOperation(int userInput) {
-        while (userInput != 3) {
+        while (userInput != 0) {
             printMenu(menu);
             try {
                 userInput = scanner.nextInt();
                 switch (userInput) {
+                    case 0:
+                        System.out.println(Color.CYAN.asString + "Exiting..." + Color.RESET.asString);
+                        break;
                     case 1:
                         printMenu(processOnItems);
                         int input = scanner.nextInt();
@@ -121,6 +126,9 @@ public class Main {
 
     public static void operationOnItem(int selection) throws Exception {
         switch (selection) {
+            case 0:
+                System.out.println(Color.CYAN.asString + "Returning to main menu..." + Color.RESET.asString);
+                break;
             case 1:
                 printSelected("Add new item.");
                 Item temp = getItemFromUser();
@@ -169,30 +177,33 @@ public class Main {
 
     public static void operationOnPurchase(int selection) {
         switch (selection) {
+            case 0:
+                System.out.println(Color.CYAN.asString + "Returning to main menu..." + Color.RESET.asString);
+                break;
             case 1:
                 printSelected("Add new purchase.\n" +
                         "Please provide program with item IDs. " +
                         "When you finish adding items then write -1 to end adding process.");
-                int count = 1;
                 Purchase purchase = new Purchase(LocalDateTime.now());
-                getIds(purchase, count);
+                getIds(purchase, 1);
                 bravo.addPurchase(purchase);
                 break;
             case 2:
                 printSelected("Return item.");
-                System.out.print("Enter purchase ID in order to see items: ");
-                long id = scanner.nextLong();
-                purchase = bravo.getPurchase(id);
-                for (PurchaseItem item : purchase.getPurchaseItems().values()) {
-                    System.out.println(item);
-                }
-                System.out.print("Enter number of items you want to return: ");
-                int number = scanner.nextInt();
-                for (int i = 0; i < number; i++) {
-                    System.out.print("Enter item ID: ");
-                    long itemID = scanner.nextLong();
-
-                }
+                Purchase newPurchase = new Purchase(LocalDateTime.now());
+                purchase = checkPurchaseId();
+                getReturnItemIds(purchase, newPurchase, 1);
+                purchase.deactivate();
+                System.out.println(newPurchase.getId());
+                bravo.addPurchase(newPurchase);
+                break;
+            case 3:
+                printSelected("Return purchase.");
+                purchase = checkPurchaseId();
+                bravo.returnPurchase(purchase.getId());
+                System.out.printf(Color.CYAN.asString + "You got %.2f\u20BC refund. Purchase %d got returned!\n" + Color.RESET.asString,
+                        purchase.getAmount(),
+                        purchase.getId());
                 break;
             case 4:
                 printSelected("Select all purchases.");
@@ -210,48 +221,31 @@ public class Main {
                     printError("Minimum amount can't be larger than maximum amount.");
                 else
                     printALlPurchases(bravo.getPurchases(min, max));
-                break;//TODO
+                break;
             case 7:
                 printSelected("Select purchases by Date.");
                 printALlPurchases(bravo.getPurchases(getDate("purchase")));
                 break;
             case 8:
-                printSelected("Select purchases by id.");
-                break;//TODO
+                printSelected("Select purchases by id.\n");
+                purchase = checkPurchaseId();
+                printPurchase(purchase);
+                printAllPurchaseItems(purchase.getPurchaseItems().values());
+                System.out.println();
+                break;
             default:
                 printSelectionError();
         }
     }
 
-    private static double getPrice(String specification) {
-        System.out.print("Enter " + specification + " amount: ");
-        double amount = 0.0;
-        try {
-            amount = scanner.nextDouble();
-        } catch (InputMismatchException e) {
-            scanner.nextLine();
-            printInputMismatchError();
-            getPrice(specification);
+    private static Purchase checkPurchaseId() {
+        long id = getId("purchase");
+        Purchase purchase = bravo.getPurchase(id);
+        if (purchase == null) {
+            printError("This purchase doesn't exist.");
+            checkPurchaseId();
         }
-        return amount;
-    }
-
-    private static LocalDateTime getDate(String specification) {
-        System.out.print("Enter " + specification + " date: ");
-        String extension;
-        if (specification.equals("end"))
-            extension = " 23:59";
-        else
-            extension = " 00:01";
-        StringBuilder input = new StringBuilder(scanner.nextLine()).append(extension);
-        LocalDateTime date = null;
-        try {
-            date = LocalDateTime.parse(input, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
-        } catch (DateTimeParseException e) {
-            printError("Your input was incorrect. Please enter date with this format XX.XX.XXXX");
-            getDate(specification);
-        }
-        return date;
+        return purchase;
     }
 
     private static void getIds(Purchase purchase, int count) {
@@ -284,10 +278,63 @@ public class Main {
         }
     }
 
+    private static final Queue<PurchaseItem> newItems = new LinkedList<>();
+
+    private static void getReturnItemIds(Purchase oldPurchase, Purchase newPurchase, int count) {
+        System.out.println("ID of purchase item " + count + " that you want to return: ");
+        try {
+            long id = scanner.nextLong();
+            scanner.nextLine();
+            if (id == -1) {
+                for (PurchaseItem item : oldPurchase.getPurchaseItems().values()) {
+                    if (item.isActive())
+                        newPurchase.addPurchaseItem(item);
+                    else
+                        newPurchase.addPurchaseItem(newItems.poll());
+                }
+                newItems.clear();
+                return;
+            }
+            PurchaseItem item = oldPurchase.getPurchaseItems().get(id);
+            if (item != null) {
+                System.out.print("Enter quantity that you want to return: ");
+                int quantity = scanner.nextInt();
+                scanner.nextLine();
+                if (!item.returnItem(quantity)) {
+                    printError("You can't return more than you bought.");
+                } else {
+                    newItems.add(PurchaseItem.copyReturn(item, quantity));
+                    getReturnItemIds(oldPurchase, newPurchase, count + 1);
+                }
+            } else {
+                printError("Item not found!");
+                getReturnItemIds(oldPurchase, newPurchase, count);
+            }
+        } catch (InputMismatchException e) {
+            scanner.nextLine();
+            printInputMismatchError();
+            getReturnItemIds(oldPurchase, newPurchase, count);
+        }
+    }
+
+    private static void printAllPurchaseItems(Collection<PurchaseItem> purchaseItems) {
+        System.out.println("Items:\n");
+        for (PurchaseItem purchaseItem: purchaseItems) {
+            System.out.format("\tID=%10d \tNAME=%15s \tCATEGORY=%20s \tQUANTITY=%15d \tPRICE=%10.2f \t%10s\n",
+                    purchaseItem.getId(),
+                    purchaseItem.getItem().getName(),
+                    purchaseItem.getItem().getCategory(),
+                    purchaseItem.getQuantity(),
+                    purchaseItem.getPrice(),
+                    purchaseItem.isActive() ? "ACTIVE" : "INACTIVE");
+        }
+        System.out.println();
+    }
+
     private static void printAllItems(Collection<Item> items) {
         System.out.println("Items:\n");
         for (Item item : items) {
-            System.out.format("\tID=%10d \tNAME=%15s \tCATEGORY=%20s \tQUANTITY=%15d \tPRICE=%10.2f\n",
+            System.out.format("\tID=%10d \tNAME=%15s \tCATEGORY=%20s \tIN STOCK=%15d \tPRICE=%10.2f\n",
                     item.getId(),
                     item.getName(),
                     item.getCategory().getStringFormat(),
@@ -297,15 +344,72 @@ public class Main {
         System.out.println();
     }
 
+    private static void printPurchase(Purchase purchase) {
+        System.out.format("\tID=%10d \tAMOUNT=%10.2f\u20BC \tPURCHASE TIME=%20s \t%10s\n",
+                purchase.getId(),
+                purchase.getAmount(),
+                purchase.getPurchaseDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")),
+                purchase.isActive() ? "ACTIVE" : "INACTIVE");
+    }
+
     private static void printALlPurchases(Collection<Purchase> purchases) {
         System.out.println("Purchases:\n");
         for (Purchase purchase : purchases) {
-            System.out.format("\tID=%10d \tAMOUNT=%10.2f \tPURCHASE TIME=%20s\n",
-                    purchase.getId(),
-                    purchase.getAmount(),
-                    purchase.getPurchaseDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
+            printPurchase(purchase);
         }
         System.out.println();
+    }
+
+    private static long getId(String specification) {
+        System.out.print("Enter " + specification + " id: ");
+        long id = 0L;
+        try {
+            id = scanner.nextLong();
+            if (id < 0) {
+                printError("Amount can't be negative number.");
+                getId(specification);
+            }
+        } catch (InputMismatchException e) {
+            scanner.nextLine();
+            printInputMismatchError();
+            getId(specification);
+        }
+        return id;
+    }
+
+    private static double getPrice(String specification) {
+        System.out.print("Enter " + specification + " amount: ");
+        double amount = 0.0;
+        try {
+            amount = scanner.nextDouble();
+            if (amount < 0) {
+                printError("Amount can't be negative number.");
+                getPrice(specification);
+            }
+        } catch (InputMismatchException e) {
+            scanner.nextLine();
+            printInputMismatchError();
+            getPrice(specification);
+        }
+        return amount;
+    }
+
+    private static LocalDateTime getDate(String specification) {
+        System.out.print("Enter " + specification + " date: ");
+        String extension;
+        if (specification.equals("end"))
+            extension = " 23:59";
+        else
+            extension = " 00:01";
+        StringBuilder input = new StringBuilder(scanner.nextLine()).append(extension);
+        LocalDateTime date = null;
+        try {
+            date = LocalDateTime.parse(input, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
+        } catch (DateTimeParseException e) {
+            printError("Your input was incorrect. Please enter date with this format XX.XX.XXXX");
+            getDate(specification);
+        }
+        return date;
     }
 
     private static Item getItemFromUser() {

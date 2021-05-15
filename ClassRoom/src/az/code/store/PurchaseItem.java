@@ -4,7 +4,8 @@ public class PurchaseItem {
     private final long id;
     private final double price;
     private final Item item;
-    private int quantity;
+    private final int quantity;
+    private boolean isActive = true;
 
     public PurchaseItem(Item item, int quantity) throws OutOfStockException {
         this.id = IdGenerator.getID();
@@ -18,10 +19,30 @@ public class PurchaseItem {
         }
     }
 
+    public PurchaseItem(PurchaseItem purchaseItem, int quantity) {
+        this.id = IdGenerator.getID();
+        this.item = purchaseItem.getItem();
+        this.quantity = quantity;
+        this.price = purchaseItem.price;
+    }
+
+    public static PurchaseItem copyReturn(PurchaseItem oldItem, int quantity) {
+        if (quantity == oldItem.getQuantity())
+            return null;
+        return new PurchaseItem(oldItem, oldItem.getQuantity() - quantity);
+    }
+
     public boolean returnItem(int quantity) {
-        if (quantity <= this.quantity)
-            this.quantity -= quantity;
+        isActive = false;
+        if (quantity <= this.quantity) {
+            this.item.increaseQuantity(quantity);
+            return true;
+        }
         return false;
+    }
+
+    public boolean isActive() {
+        return isActive;
     }
 
     public long getId() {

@@ -26,7 +26,7 @@ public interface Marketable {
 
     void removeItem(Purchase purchase, long itemId, int quantity);
 
-    void removePurchase(long purchaseId);
+    void returnPurchase(long purchaseId);
 
     Collection<Purchase> getAllPurchases();
 

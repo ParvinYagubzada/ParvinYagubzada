@@ -9,6 +9,7 @@ public class Purchase {
     private final Map<Long, PurchaseItem> purchaseItems;
     private double amount;
     private final LocalDateTime purchaseTime;
+    private boolean isActive = true;
 
     public Purchase(LocalDateTime purchaseDate) {
         this.id = IdGenerator.getID();
@@ -22,12 +23,18 @@ public class Purchase {
         this.amount += (item.getPrice() * item.getQuantity());
     }
 
-    public boolean returnItem(long id, int quantity) {
-        PurchaseItem item = purchaseItems.get(id);
-        if (item != null) {
-            return item.returnItem(quantity);
+    public void returnAllItems() {
+        for (PurchaseItem item : this.purchaseItems.values()) {
+            item.returnItem(item.getQuantity());
         }
-        return false;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void deactivate() {
+        isActive = false;
     }
 
     public long getId() {
