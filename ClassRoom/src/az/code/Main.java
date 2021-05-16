@@ -9,6 +9,8 @@ import java.util.*;
 
 import static az.code.store.Printer.*;
 
+import az.code.store.Bravo.LoginError;
+
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);
     private static final Bravo bravo = new Bravo();
@@ -26,9 +28,10 @@ public class Main {
             printMenu(menu);
             try {
                 userInput = scanner.nextInt();
+                scanner.nextLine();
                 switch (userInput) {
                     case 0:
-                        println(Color.CYAN.asString + "Exiting..." + Color.RESET.asString);
+                        println(colorString(Color.CYAN, "Exiting..."));
                         break;
                     case 1:
                         printMenu(processOnItems);
@@ -42,10 +45,13 @@ public class Main {
                         operationOnPurchase(input);
                         break;
                     case 3:
-                        printMenu(processOnBravo);
-                        input = scanner.nextInt();
-                        scanner.nextLine();
-                        operationOnBravo(input);
+                        if (checkLogin()) {
+                            printMenu(processOnBravo);
+                            input = scanner.nextInt();
+                            scanner.nextLine();
+                            operationOnBravo(input);
+                        }
+                        break;
                     default:
                         printSelectionError();
                 }
@@ -56,7 +62,7 @@ public class Main {
                 } else if (e instanceof NoSuchElementException) {
                     printError("This item does not exist!");
                 } else if (e instanceof WantToExit) {
-                    println(Color.CYAN.asString + "Returning to main menu..." + Color.RESET.asString);
+                    println(colorString(Color.CYAN, "Returning to main menu..."));
                 } else {
                     println(e.getClass().getSimpleName()); //TODO 1: DELETE AFTER TESTING!
                 }
@@ -68,7 +74,7 @@ public class Main {
     public static void operationOnItem(int selection) throws Exception {
         switch (selection) {
             case 0:
-                println(Color.CYAN.asString + "Returning to main menu..." + Color.RESET.asString);
+                println(colorString(Color.CYAN, "Returning to main menu..."));
                 break;
             case 1:
                 printSelected("Add new item.");
@@ -130,7 +136,7 @@ public class Main {
     public static void operationOnPurchase(int selection) {
         switch (selection) {
             case 0:
-                println(Color.CYAN.asString + "Returning to main menu..." + Color.RESET.asString);
+                println(colorString(Color.CYAN, "Returning to main menu..."));
                 break;
             case 1:
                 printSelected("Add new purchase.\n" +
@@ -154,7 +160,7 @@ public class Main {
                 purchase = checkPurchaseId();
                 try {
                     bravo.returnPurchase(purchase.getId());
-                    System.out.printf(Color.CYAN.asString + "You got %.2f\u20BC refund. Purchase %d got returned!\n" + Color.RESET.asString,
+                    System.out.printf(colorString(Color.CYAN, "You got %.2f\u20BC refund. Purchase %d got returned!\n"),
                             purchase.getAmount(),
                             purchase.getId());
                 } catch (Exception e) {
@@ -209,7 +215,19 @@ public class Main {
     }
 
     public static void operationOnBravo(int selection) {
-
+        switch (selection) {
+            case 0:
+                println(colorString(Color.CYAN, "Returning to main menu..."));
+                break;
+            case 1:
+                println(colorString(Color.CYAN, addBeginningEndingLine("Your total income is " + bravo.getTotalIncome() + "\u20BC")));
+                break;
+            case 2:
+                println(colorString(Color.CYAN, addBeginningEndingLine("Your sold item count is " + bravo.getTotalSoldItemCount())));
+                break;
+            default:
+                printSelectionError();
+        }
     }
 
     private static Purchase checkPurchaseId() {
@@ -295,7 +313,7 @@ public class Main {
     private static void printAllPurchaseItems(Collection<PurchaseItem> purchaseItems) {
         println("Items:\n");
         for (PurchaseItem purchaseItem : purchaseItems) {
-            System.out.format("\tID=%10d \tNAME=%15s \tCATEGORY=%20s \tQUANTITY=%15d \tPRICE=%10.2f \t%10s\n",
+            System.out.format("\tID=%10d \tNAME=%15s \tCATEGORY=%20s \tQUANTITY=%15d \tPRICE=%10.2f\u20BC \t%10s\n",
                     purchaseItem.getId(),
                     purchaseItem.getItem().getName(),
                     purchaseItem.getItem().getCategory(),
@@ -309,7 +327,7 @@ public class Main {
     private static void printAllItems(Collection<Item> items) {
         println("Items:\n");
         for (Item item : items) {
-            System.out.format("\tID=%10d \tNAME=%15s \tCATEGORY=%20s \tIN STOCK=%15d \tPRICE=%10.2f\n",
+            System.out.format("\tID=%10d \tNAME=%15s \tCATEGORY=%20s \tIN STOCK=%15d \tPRICE=%10.2f\u20BC\n",
                     item.getId(),
                     item.getName(),
                     item.getCategory().getStringFormat(),
@@ -324,7 +342,7 @@ public class Main {
                 purchase.getId(),
                 purchase.getAmount(),
                 purchase.getPurchaseDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")),
-                purchase.isActive() ? colorString(Color.GREEN,"ACTIVE") : colorString(Color.RED, "INACTIVE"));
+                purchase.isActive() ? colorString(Color.GREEN, "ACTIVE") : colorString(Color.RED, "INACTIVE"));
     }
 
     private static void printALlPurchases(Collection<Purchase> purchases) {
@@ -333,6 +351,25 @@ public class Main {
             printPurchase(purchase);
         }
         println();
+    }
+
+    private static boolean checkLogin() {
+        print("Enter username: ");
+        String username = scanner.nextLine();
+        if (username.equals("-1"))
+            throw new WantToExit();
+        print("Enter password: ");
+        String password = scanner.nextLine();
+        if (password.equals("-1"))
+            throw new WantToExit();
+        try {
+            bravo.checkCredentials(username, password);
+            return true;
+        } catch (LoginError loginError) {
+            printError(loginError.getMessage());
+            checkLogin();
+        }
+        return false;
     }
 
     private static String askForConfirmation() throws InputMismatchException {

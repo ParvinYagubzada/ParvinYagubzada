@@ -2,14 +2,18 @@ package az.code.store;
 
 import az.code.Color;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+
 public final class Printer {
     public static final String start = "Please select one of selections:\n";
     public static final String end = "Your selection:\t";
     public static final String menu = Color.BLUE.asString + """
             \t1. Processes on Items.
             \t2. Processes on Purchases.
-            \t3. Processes on Bravo. Owner privileges. Requires login.""" + Color.YELLOW.asString + """
-                        
+            \t3. Processes on Bravo.""" + Color.YELLOW.asString + """
+             Requires admin login.
             \t0. Exit.
             """ + Color.RESET.asString;
     public static final String processOnItems = Color.BLUE.asString + """
@@ -36,13 +40,13 @@ public final class Printer {
             \t0. Back.
             """ + Color.RESET.asString;
     public static final String processOnBravo = Color.BLUE.asString + """
-            \t1. Add new item.
-            \t2. Edit item.
-            \t3. Remove item.
-            \t4. Select all items.
-            \t5. Select items by categories.
-            \t6. Select items by price range.
-            \t7. Select items by item name.""" + Color.YELLOW.asString + """
+            \t1. Show total income.
+            \t2. Show total item count witch is sold.
+            \t3. Under construction.
+            \t4. Under construction.
+            \t5. Under construction.
+            \t6. Under construction.
+            \t7. Under construction.""" + Color.YELLOW.asString + """
                         
             \t0. Back.
             """ + Color.RESET.asString;
@@ -62,13 +66,26 @@ public final class Printer {
             \t2. Descending Amount.
             \t3. Date and Time. From oldest to newest.
             \t4. Date and Time. From newest to oldest.
-            \t5. Status. Inactives first.
+            \t5. Status. Inactive first.
             \t6. Status. Actives first.
             \t7. ID (Default)
             """ + Color.RESET.asString;
 
-    public static String colorString(Color color, String word) {
+    public static <T> String colorString(Color color, T word) {
         return color.asString + word + Color.RESET.asString;
+    }
+
+    public static String addBeginningEndingLine(String str) {
+        return "\n\t" + str + "\n";
+    }
+
+    public static String hashString(String input) {
+        try {
+            return Arrays.toString(MessageDigest.getInstance("MD5").digest(input.getBytes()));
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return input;
     }
 
     public static void print(String string) {

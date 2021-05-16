@@ -1,5 +1,6 @@
 package az.code.store;
 
+import static az.code.store.Printer.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -8,10 +9,37 @@ public class Bravo implements Marketable {
     private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private final HashMap<Long, Purchase> purchases;
     private final HashMap<Long, Item> items;
+    private Long totalIncome = 0L;
+    private Long totalSoldItemCount = 0L;
+    private final String username = hashString("Admin");
+    private String password = hashString("PasswordAdmin123");
 
     public Bravo() {
         this.purchases = new HashMap<>();
         this.items = new HashMap<>();
+    }
+
+    public void increaseIncome(double amount) {
+        totalIncome += (long) amount;
+    }
+
+    public void increaseSoldItemCount(int count) {
+        totalSoldItemCount += count;
+    }
+
+    public long getTotalIncome() {
+        return totalIncome;
+    }
+
+    public Long getTotalSoldItemCount() {
+        return totalSoldItemCount;
+    }
+
+    public void checkCredentials(String username, String password) throws LoginError {
+        username = hashString(username);
+        password = hashString(password);
+        if (!username.equals(this.username) || !password.equals(this.password))
+            throw new LoginError();
     }
 
     @Override
@@ -82,6 +110,13 @@ public class Bravo implements Marketable {
 
     @Override
     public void addPurchase(Purchase purchase) {
+        increaseIncome(purchase.getAmount());
+        increaseSoldItemCount(purchase
+                .getPurchaseItems()
+                .values()
+                .stream()
+                .mapToInt(PurchaseItem::getQuantity)
+                .sum());
         purchases.put(purchase.getId(), purchase);
     }
 
@@ -141,5 +176,11 @@ public class Bravo implements Marketable {
     @Override
     public Purchase getPurchase(long id) {
         return purchases.get(id);
+    }
+
+    public class LoginError extends Exception {
+        public LoginError() {
+            super("Username or password was wrong!");
+        }
     }
 }
