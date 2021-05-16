@@ -7,11 +7,11 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 
+import static az.code.store.Printer.*;
+
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);
     private static final Bravo bravo = new Bravo();
-    public static final String start = "Please select one of selections:\n";
-    public static final String end = "Your selection:\t";
     public static final String menu = Color.BLUE.asString + """
             \t1. Processes on Items.
             \t2. Processes on Purchases.""" + Color.YELLOW.asString + """
@@ -53,55 +53,11 @@ public class Main {
             """ + Color.RESET.asString;
 
     static {
-        Random random = new Random();
-        for (int i = 0; i < 100; i++) {
-            bravo.addItem("Item" + i,
-                    random.nextDouble() * Math.pow(10, Math.abs(random.nextInt(4)) + 1),
-                    Category.values()[random.nextInt(4)],
-                    Math.abs(random.nextInt(10000)) + 1);
-        }
-        for (int i = 0; i < 20; i++) {
-            int year = random.nextInt(20) + 2000;
-            int month = random.nextInt(12) + 1;
-            int dayOfMonth = random.nextInt(28) + 1;
-            int hour = random.nextInt(24);
-            int minute = random.nextInt(60);
-            Purchase purchase = new Purchase(LocalDateTime.of(year, month, dayOfMonth, hour, minute));
-            for (int j = 0; j < random.nextInt(25) + 1; j++) {
-                try {
-                    PurchaseItem purchaseItem = new PurchaseItem(bravo.getItem(random.nextInt(100) + 1), random.nextInt(100) + 1);
-                    purchase.addPurchaseItem(purchaseItem);
-                } catch (PurchaseItem.OutOfStockException e) {
-                    System.out.println("Error");
-                }
-            }
-            bravo.addPurchase(purchase);
-        }
+        Generator.generateDummyData(bravo);
     }
 
     public static void main(String[] args) {
         mainOperation(1);
-    }
-
-    private static void printMenu(String menu) {
-        System.out.print(start + menu + end);
-    }
-
-    private static void printError(String error) {
-        System.out.println(Color.RED.asString + error + Color.RESET.asString);
-    }
-
-    private static void printSelected(String selected) {
-        String youSelected = "You selected: ";
-        System.out.println(youSelected + Color.PURPLE.asString + selected + Color.RESET.asString);
-    }
-
-    private static void printSelectionError() {
-        printError("You can't select number other than provided.");
-    }
-
-    private static void printInputMismatchError() {
-        printError("Your input was incorrect.");
     }
 
     public static void mainOperation(int userInput) {
@@ -111,7 +67,7 @@ public class Main {
                 userInput = scanner.nextInt();
                 switch (userInput) {
                     case 0:
-                        System.out.println(Color.CYAN.asString + "Exiting..." + Color.RESET.asString);
+                        println(Color.CYAN.asString + "Exiting..." + Color.RESET.asString);
                         break;
                     case 1:
                         printMenu(processOnItems);
@@ -134,7 +90,7 @@ public class Main {
                 } else if (e instanceof NoSuchElementException) {
                     printError("This item does not exist!");
                 } else {
-                    System.out.println(e.getClass().getSimpleName()); //TODO 1: DELETE AFTER TESTING!
+                    println(e.getClass().getSimpleName()); //TODO 1: DELETE AFTER TESTING!
                 }
                 mainOperation(0);
             }
@@ -144,7 +100,7 @@ public class Main {
     public static void operationOnItem(int selection) throws Exception {
         switch (selection) {
             case 0:
-                System.out.println(Color.CYAN.asString + "Returning to main menu..." + Color.RESET.asString);
+                println(Color.CYAN.asString + "Returning to main menu..." + Color.RESET.asString);
                 break;
             case 1:
                 printSelected("Add new item.");
@@ -153,20 +109,20 @@ public class Main {
                 break;
             case 2:
                 printSelected("Edit item.");
-                System.out.print("Please enter item id: ");
+                print("Please enter item id: ");
                 long id = scanner.nextLong();
                 temp = getItemFromUser();
                 bravo.editItem(id, temp.getName(), temp.getPrice(), temp.getCategory(), temp.getQuantity());
                 break;
             case 3:
                 printSelected("Remove item.");
-                System.out.print("Please enter item id: ");
+                print("Please enter item id: ");
                 id = scanner.nextLong();
                 bravo.removeItem(id);
                 break;
             case 4:
                 printSelected("Select all items.");
-                System.out.print("How many items you want to see: ");
+                print("How many items you want to see: ");
                 int count = scanner.nextInt();
                 scanner.nextLine();
                 String input = askForConfirmation();
@@ -184,15 +140,15 @@ public class Main {
                 break;
             case 6:
                 printSelected("Select items by price range.");
-                System.out.print("Please enter min price: ");
+                print("Please enter min price: ");
                 double min = scanner.nextDouble();
-                System.out.print("Please enter max price: ");
+                print("Please enter max price: ");
                 double max = scanner.nextDouble();
                 printAllItems(bravo.getItems(min, max));
                 break;
             case 7:
                 printSelected("Select items by item name.");
-                System.out.println("Please enter word you are searching for: ");
+                println("Please enter word you are searching for: ");
                 String word = scanner.next();
                 printAllItems(bravo.getItems(word));
                 break;
@@ -204,23 +160,23 @@ public class Main {
     public static void operationOnPurchase(int selection) {
         switch (selection) {
             case 0:
-                System.out.println(Color.CYAN.asString + "Returning to main menu..." + Color.RESET.asString);
+                println(Color.CYAN.asString + "Returning to main menu..." + Color.RESET.asString);
                 break;
             case 1:
                 printSelected("Add new purchase.\n" +
                         "Please provide program with item IDs. " +
                         "When you finish adding items then write -1 to end adding process.");
-                Purchase purchase = new Purchase(LocalDateTime.now());
+                Purchase purchase = new Purchase();
                 getIds(purchase, 1);
                 bravo.addPurchase(purchase);
                 break;
             case 2:
                 printSelected("Return item.");
-                Purchase newPurchase = new Purchase(LocalDateTime.now());
+                Purchase newPurchase = new Purchase();
                 purchase = checkPurchaseId();
                 getReturnItemIds(purchase, newPurchase, 1);
                 purchase.deactivate();
-                System.out.println(newPurchase.getId());
+                println(newPurchase.getId());
                 bravo.addPurchase(newPurchase);
                 break;
             case 3:
@@ -257,7 +213,7 @@ public class Main {
                 purchase = checkPurchaseId();
                 printPurchase(purchase);
                 printAllPurchaseItems(purchase.getPurchaseItems().values());
-                System.out.println();
+                println();
                 break;
             default:
                 printSelectionError();
@@ -275,7 +231,7 @@ public class Main {
     }
 
     private static void getIds(Purchase purchase, int count) {
-        System.out.print("ID of item " + count + ": ");
+        print("ID of item " + count + ": ");
         try {
             long id = scanner.nextLong();
             scanner.nextLine();
@@ -283,7 +239,7 @@ public class Main {
                 return;
             Item item = bravo.getItem(id);
             if (item != null) {
-                System.out.print("Enter item quantity: ");
+                print("Enter item quantity: ");
                 int quantity = scanner.nextInt();
                 scanner.nextLine();
                 try {
@@ -291,7 +247,7 @@ public class Main {
                     purchase.addPurchaseItem(purchaseItem);
                     getIds(purchase, count + 1);
                 } catch (PurchaseItem.OutOfStockException e) {
-                    System.out.println(e.getMessage());
+                    println(e.getMessage());
                 }
             } else {
                 printError("Item not found!");
@@ -307,7 +263,7 @@ public class Main {
     private static final Queue<PurchaseItem> newItems = new LinkedList<>();
 
     private static void getReturnItemIds(Purchase oldPurchase, Purchase newPurchase, int count) {
-        System.out.println("ID of purchase item " + count + " that you want to return: ");
+        println("ID of purchase item " + count + " that you want to return: ");
         try {
             long id = scanner.nextLong();
             scanner.nextLine();
@@ -323,7 +279,7 @@ public class Main {
             }
             PurchaseItem item = oldPurchase.getPurchaseItems().get(id);
             if (item != null) {
-                System.out.print("Enter quantity that you want to return: ");
+                print("Enter quantity that you want to return: ");
                 int quantity = scanner.nextInt();
                 scanner.nextLine();
                 if (!item.returnItem(quantity)) {
@@ -344,7 +300,7 @@ public class Main {
     }
 
     private static void printAllPurchaseItems(Collection<PurchaseItem> purchaseItems) {
-        System.out.println("Items:\n");
+        println("Items:\n");
         for (PurchaseItem purchaseItem: purchaseItems) {
             System.out.format("\tID=%10d \tNAME=%15s \tCATEGORY=%20s \tQUANTITY=%15d \tPRICE=%10.2f \t%10s\n",
                     purchaseItem.getId(),
@@ -354,11 +310,11 @@ public class Main {
                     purchaseItem.getPrice(),
                     purchaseItem.isActive() ? "ACTIVE" : "INACTIVE");
         }
-        System.out.println();
+        println();
     }
 
     private static void printAllItems(Collection<Item> items) {
-        System.out.println("Items:\n");
+        println("Items:\n");
         for (Item item : items) {
             System.out.format("\tID=%10d \tNAME=%15s \tCATEGORY=%20s \tIN STOCK=%15d \tPRICE=%10.2f\n",
                     item.getId(),
@@ -367,7 +323,7 @@ public class Main {
                     item.getQuantity(),
                     item.getPrice());
         }
-        System.out.println();
+        println();
     }
 
     private static void printPurchase(Purchase purchase) {
@@ -379,15 +335,15 @@ public class Main {
     }
 
     private static void printALlPurchases(Collection<Purchase> purchases) {
-        System.out.println("Purchases:\n");
+        println("Purchases:\n");
         for (Purchase purchase : purchases) {
             printPurchase(purchase);
         }
-        System.out.println();
+        println();
     }
 
     private static String askForConfirmation() throws InputMismatchException {
-        System.out.print("Do you want to sort items? Y/N: ");
+        print("Do you want to sort items? Y/N: ");
         String input = scanner.nextLine().toUpperCase();
         if (input.equals("Y") || input.equals("N"))
             return input;
@@ -412,9 +368,9 @@ public class Main {
     }
 
     private static int getOrderSelection() {
-        System.out.println("Predefined orders:");
-        System.out.println(orders);
-        System.out.print(end);
+        println("Predefined orders:");
+        println(orders);
+        print(end);
         try {
             int selection = scanner.nextInt();
             if (selection > 7 || selection < 1) {
@@ -430,7 +386,7 @@ public class Main {
     }
 
     private static long getId(String specification) {
-        System.out.print("Enter " + specification + " id: ");
+        print("Enter " + specification + " id: ");
         long id = 0L;
         try {
             id = scanner.nextLong();
@@ -447,7 +403,7 @@ public class Main {
     }
 
     private static double getPrice(String specification) {
-        System.out.print("Enter " + specification + " amount: ");
+        print("Enter " + specification + " amount: ");
         double amount = 0.0;
         try {
             amount = scanner.nextDouble();
@@ -464,7 +420,7 @@ public class Main {
     }
 
     private static LocalDateTime getDate(String specification) {
-        System.out.print("Enter " + specification + " date: ");
+        print("Enter " + specification + " date: ");
         String extension;
         if (specification.equals("end"))
             extension = " 23:59";
@@ -482,13 +438,13 @@ public class Main {
     }
 
     private static Item getItemFromUser() {
-        System.out.print("Please enter the item name: ");
+        print("Please enter the item name: ");
         scanner.nextLine();
         String name = scanner.nextLine();
-        System.out.print("Please enter item price: ");
+        print("Please enter item price: ");
         double price = scanner.nextDouble();
         Category category = getCategory();
-        System.out.print("Please enter quantity: ");
+        print("Please enter quantity: ");
         int quantity = scanner.nextInt();
         Item item = null;
         try {
@@ -500,9 +456,9 @@ public class Main {
     }
 
     private static Category getCategory() {
-        System.out.println("Please select one of Categories: ");
+        println("Please select one of Categories: ");
         Category.printCats();
-        System.out.print(end);
+        print(end);
         int selection = scanner.nextInt();
         if (selection < 0 || selection > Category.values().length) {
             printSelectionError();

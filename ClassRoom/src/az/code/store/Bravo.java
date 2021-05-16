@@ -16,7 +16,7 @@ public class Bravo implements Marketable {
 
     @Override
     public void addItem(String name, double price, Category category, int quantity) {
-        long id = IdGenerator.getID();
+        long id = Generator.getID();
         Item item = new Item(name, price, category, quantity, id);
         items.put(id, item);
     }

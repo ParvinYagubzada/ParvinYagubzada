@@ -1,6 +1,6 @@
 package az.code;
 
-enum Color {
+public enum Color {
     RESET("\u001B[0m"),
     RED("\u001B[31m"),
     GREEN("\u001B[32m"),

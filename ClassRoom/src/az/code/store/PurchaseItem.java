@@ -8,7 +8,7 @@ public class PurchaseItem {
     private boolean isActive = true;
 
     public PurchaseItem(Item item, int quantity) throws OutOfStockException {
-        this.id = IdGenerator.getID();
+        this.id = Generator.getID();
         this.item = item;
         this.quantity = quantity;
         if (quantity > item.getQuantity()) {
@@ -20,7 +20,7 @@ public class PurchaseItem {
     }
 
     public PurchaseItem(PurchaseItem purchaseItem, int quantity) {
-        this.id = IdGenerator.getID();
+        this.id = Generator.getID();
         this.item = purchaseItem.getItem();
         this.quantity = quantity;
         this.price = purchaseItem.price;
