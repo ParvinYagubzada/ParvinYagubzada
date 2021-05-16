@@ -197,9 +197,12 @@ public class Main {
                 String input = askForConfirmation();
                 switch (input) {
                     case "Y":
-                        printOrdered(count, Item.class);
+                        printOrderedPurchases(count);
+                        break;
+                    case "N":
+                        printALlPurchases(bravo.getAllPurchases(count));
+                        break;
                 }
-                printALlPurchases(bravo.getAllPurchases(count));
                 break;
             case 5:
                 printSelected("Select purchases by Date range.");
@@ -361,31 +364,16 @@ public class Main {
         return "";
     }
 
-    private static void printOrdered(int count, Class<Filterable> type) {
+    private static void printOrderedPurchases(int count) {
         int orderSelection = getOrderSelection();
         if (orderSelection < 7 && orderSelection > 0) {
-            orderFilterable(type);
+            Comparator<Purchase> order = Purchase.orders[orderSelection - 1];
+            List<Purchase> elements = new ArrayList<>(bravo.getAllPurchases(count));
+            elements.sort(order);
+            printALlPurchases(elements);
         } else {
             printAllItems(bravo.getAllItems(count));
         }
-    }
-
-    private static <T extends Filterable> void orderFilterable(T filterable, int orderSelection, int count) {
-        Comparator<T> order = filterable.getOrders()[orderSelection];
-        List elements;
-        if (filterable instanceof Item)
-            elements = new ArrayList<>(bravo.getAllItems(count));
-        else
-            elements = new ArrayList<>(bravo.getAllPurchases(count));
-        elements.sort(order);
-        printFiltered(elements);
-    }
-
-    public static void printFiltered(List list) {
-        if (list.get(0) instanceof Item)
-            printAllItems(list);
-        else
-            printALlPurchases(list);
     }
 
     private static void printOrderedItems(int count) {
