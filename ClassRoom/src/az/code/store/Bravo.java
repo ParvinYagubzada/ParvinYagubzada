@@ -244,7 +244,7 @@ public class Bravo implements Marketable {
         @Override
         public String toString() {
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-            return "\tFrom %s date to %s date total income is %s".formatted(
+            return "\tFrom %s date to %s date total income is %17s".formatted(
                     colorString(Color.GREEN, this.startDate.format(dtf)),
                     colorString(Color.GREEN, this.endDate.format(dtf)),
                     colorString(Color.CYAN, amount));
