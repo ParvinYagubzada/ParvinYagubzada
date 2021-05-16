@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import static az.code.store.Bravo.IncomeStatisticsHolder;
 import static az.code.store.Printer.*;
 
+@SuppressWarnings("ALL")
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);
     private static final Bravo bravo = new Bravo();

@@ -53,7 +53,6 @@ public class Bravo implements Marketable {
     public List<IncomeStatisticsHolder> getIncomeStatistics(LocalDateTime start, LocalDateTime end) {
         List<IncomeStatisticsHolder> holder = new LinkedList<>();
         end = end.toLocalDate().atTime(23, 59);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
         LocalDateTime endOfMonth = start
                 .minusDays(start.getDayOfMonth() - 1)
                 .plusMonths(1)
@@ -122,7 +121,7 @@ public class Bravo implements Marketable {
         return sorted.subList(0, checkCount(count, items));
     }
 
-    private static int checkCount(int count, Map map) {
+    private static int checkCount(int count, @SuppressWarnings("rawtypes") Map map) {
         if (count > map.size())
             count = map.size();
         return count;
@@ -168,11 +167,6 @@ public class Bravo implements Marketable {
                 .mapToInt(PurchaseItem::getQuantity)
                 .sum());
         purchases.put(purchase.getId(), purchase);
-    }
-
-    @Override
-    public void removeItem(Purchase purchase, long itemId, int quantity) {
-        //purchase.returnItem(itemId, quantity);TODO 2 DELETE AFTER TESTING!
     }
 
     @Override
@@ -235,6 +229,7 @@ public class Bravo implements Marketable {
         return purchases.get(id);
     }
 
+    @SuppressWarnings("ClassCanBeRecord")
     public static class IncomeStatisticsHolder {
         private final long amount;
         private final LocalDate startDate;
