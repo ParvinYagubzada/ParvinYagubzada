@@ -396,11 +396,10 @@ public class Main {
         int orderSelection = getOrderSelection(Purchase.class);
         if (orderSelection < 7 && orderSelection > 0) {
             Comparator<Purchase> order = Purchase.orders[orderSelection - 1];
-            List<Purchase> elements = new ArrayList<>(bravo.getAllPurchases(count));
-            elements.sort(order);
+            List<Purchase> elements = bravo.getAllPurchases(count, order);
             printALlPurchases(elements);
         } else {
-            printAllItems(bravo.getAllItems(count));
+            printALlPurchases(bravo.getAllPurchases(count));
         }
     }
 
@@ -408,8 +407,7 @@ public class Main {
         int orderSelection = getOrderSelection(Item.class);
         if (orderSelection < 7 && orderSelection > 0) {
             Comparator<Item> order = Item.orders[orderSelection - 1];
-            List<Item> elements = new ArrayList<>(bravo.getAllItems(count));
-            elements.sort(order);
+            List<Item> elements = bravo.getAllItems(count, order);
             printAllItems(elements);
         } else {
             printAllItems(bravo.getAllItems(count));

@@ -112,9 +112,20 @@ public class Bravo implements Marketable {
 
     @Override
     public List<Item> getAllItems(int count) {
-        if (count > items.size())
-            count = items.size();
-        return new LinkedList<>(items.values()).subList(0, count);
+        return new ArrayList<>(items.values()).subList(0, checkCount(count, items));
+    }
+
+    @Override
+    public List<Item> getAllItems(int count, Comparator<Item> order) {
+        ArrayList<Item> sorted = new ArrayList<>(items.values());
+        sorted.sort(order);
+        return sorted.subList(0, checkCount(count, items));
+    }
+
+    private static int checkCount(int count, Map map) {
+        if (count > map.size())
+            count = map.size();
+        return count;
     }
 
     @Override
@@ -180,6 +191,13 @@ public class Bravo implements Marketable {
         if (count > purchases.size())
             count = purchases.size();
         return new LinkedList<>(purchases.values()).subList(0, count);
+    }
+
+    @Override
+    public List<Purchase> getAllPurchases(int count, Comparator<Purchase> order) {
+        ArrayList<Purchase> sorted = new ArrayList<>(purchases.values());
+        sorted.sort(order);
+        return sorted.subList(0, checkCount(count, purchases));
     }
 
     @Override

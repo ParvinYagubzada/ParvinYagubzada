@@ -19,8 +19,8 @@ public class Item implements Comparable<Item> {
     }
 
     public static Comparator<Item>[] orders = new Comparator[6];
-    public static Comparator<Item> sortByPrice = (base, second) -> (int) (base.price - second.price);
-    public static Comparator<Item> sortByPriceDESC = (base, second) -> (int) (second.price - base.price);
+    public static Comparator<Item> sortByPrice = (base, second) -> (Double.compare(base.price, second.price));
+    public static Comparator<Item> sortByPriceDESC = (base, second) -> (Double.compare(second.price, base.price));
     public static Comparator<Item> sortByCategory = (base, second) -> base.category.getStringFormat().compareTo(second.category.getStringFormat());
     public static Comparator<Item> sortByCategoryDESC = (base, second) -> second.category.getStringFormat().compareTo(base.category.getStringFormat());
     public static Comparator<Item> sortByQuantity = (base, second) -> base.quantity - second.quantity;
