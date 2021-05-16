@@ -7,8 +7,7 @@ public final class Printer {
     public static final String end = "Your selection:\t";
     public static final String menu = Color.BLUE.asString + """
             \t1. Processes on Items.
-            \t2. Processes on Purchases.
-            \t3. Owner privileges.""" + Color.YELLOW.asString + """
+            \t2. Processes on Purchases.""" + Color.YELLOW.asString + """
                         
             \t0. Exit.
             """ + Color.RESET.asString;
