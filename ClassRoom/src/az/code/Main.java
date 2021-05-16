@@ -12,45 +12,6 @@ import static az.code.store.Printer.*;
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);
     private static final Bravo bravo = new Bravo();
-    public static final String menu = Color.BLUE.asString + """
-            \t1. Processes on Items.
-            \t2. Processes on Purchases.""" + Color.YELLOW.asString + """
-                        
-            \t0. Exit.
-            """ + Color.RESET.asString;
-    public static final String processOnItems = Color.BLUE.asString + """
-            \t1. Add new item.
-            \t2. Edit item.
-            \t3. Remove item.
-            \t4. Select all items.
-            \t5. Select items by categories.
-            \t6. Select items by price range.
-            \t7. Select items by item name.""" + Color.YELLOW.asString + """
-                        
-            \t0. Back.
-            """ + Color.RESET.asString;
-    public static final String processOnPurchases = Color.BLUE.asString + """
-            \t1. Add new purchase.
-            \t2. Return item.
-            \t3. Return purchase.
-            \t4. Select all purchases.
-            \t5. Select purchases by Date range.
-            \t6. Select purchases by price range.
-            \t7. Select purchases by Date.
-            \t8. Select purchase by id.""" + Color.YELLOW.asString + """
-                        
-            \t0. Back.
-            """ + Color.RESET.asString;
-    public static final String orders = Color.BLUE.asString + """
-            \t\t SORT BY:
-            \t1. Price.
-            \t2. Descending Price.
-            \t3. Category
-            \t4. Descending Category.
-            \t5. Quantity
-            \t6. Descending Quantity.
-            \t7. ID (Default)
-            """ + Color.RESET.asString;
 
     static {
         Generator.generateDummyData(bravo);
@@ -89,6 +50,8 @@ public class Main {
                     printInputMismatchError();
                 } else if (e instanceof NoSuchElementException) {
                     printError("This item does not exist!");
+                } else if (e instanceof WantToExit) {
+                    println(Color.CYAN.asString + "Returning to main menu..." + Color.RESET.asString);
                 } else {
                     println(e.getClass().getSimpleName()); //TODO 1: DELETE AFTER TESTING!
                 }
@@ -184,10 +147,15 @@ public class Main {
             case 3:
                 printSelected("Return purchase.");
                 purchase = checkPurchaseId();
-                bravo.returnPurchase(purchase.getId());
-                System.out.printf(Color.CYAN.asString + "You got %.2f\u20BC refund. Purchase %d got returned!\n" + Color.RESET.asString,
-                        purchase.getAmount(),
-                        purchase.getId());
+                try {
+                    bravo.returnPurchase(purchase.getId());
+                    System.out.printf(Color.CYAN.asString + "You got %.2f\u20BC refund. Purchase %d got returned!\n" + Color.RESET.asString,
+                            purchase.getAmount(),
+                            purchase.getId());
+                } catch (Exception e) {
+                    printError(e.getMessage());
+                    operationOnPurchase(selection);
+                }
                 break;
             case 4:
                 printSelected("Select all purchases.");
@@ -224,7 +192,9 @@ public class Main {
             case 8:
                 printSelected("Select purchases by id.\n");
                 purchase = checkPurchaseId();
+                println();
                 printPurchase(purchase);
+                println();
                 printAllPurchaseItems(purchase.getPurchaseItems().values());
                 println();
                 break;
@@ -234,7 +204,7 @@ public class Main {
     }
 
     private static Purchase checkPurchaseId() {
-        long id = getId("purchase");
+        long id = getLong("purchase");
         Purchase purchase = bravo.getPurchase(id);
         if (purchase == null) {
             printError("This purchase doesn't exist.");
@@ -260,7 +230,8 @@ public class Main {
                     purchase.addPurchaseItem(purchaseItem);
                     getIds(purchase, count + 1);
                 } catch (PurchaseItem.OutOfStockException e) {
-                    println(e.getMessage());
+                    printError(e.getMessage());
+                    getIds(purchase, count);
                 }
             } else {
                 printError("Item not found!");
@@ -340,11 +311,11 @@ public class Main {
     }
 
     private static void printPurchase(Purchase purchase) {
-        System.out.format("\tID=%10d \tAMOUNT=%10.2f\u20BC \tPURCHASE TIME=%20s \t%10s\n",
+        System.out.format("\tID=%10d \tAMOUNT=%15.2f\u20BC \tPURCHASE TIME=%20s \t%10s\n",
                 purchase.getId(),
                 purchase.getAmount(),
                 purchase.getPurchaseDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")),
-                purchase.isActive() ? "ACTIVE" : "INACTIVE");
+                purchase.isActive() ? colorString(Color.GREEN,"ACTIVE") : colorString(Color.RED, "INACTIVE"));
     }
 
     private static void printALlPurchases(Collection<Purchase> purchases) {
@@ -365,7 +336,7 @@ public class Main {
     }
 
     private static void printOrderedPurchases(int count) {
-        int orderSelection = getOrderSelection();
+        int orderSelection = getOrderSelection(Purchase.class);
         if (orderSelection < 7 && orderSelection > 0) {
             Comparator<Purchase> order = Purchase.orders[orderSelection - 1];
             List<Purchase> elements = new ArrayList<>(bravo.getAllPurchases(count));
@@ -377,7 +348,7 @@ public class Main {
     }
 
     private static void printOrderedItems(int count) {
-        int orderSelection = getOrderSelection();
+        int orderSelection = getOrderSelection(Item.class);
         if (orderSelection < 7 && orderSelection > 0) {
             Comparator<Item> order = Item.orders[orderSelection - 1];
             List<Item> elements = new ArrayList<>(bravo.getAllItems(count));
@@ -388,37 +359,42 @@ public class Main {
         }
     }
 
-    private static int getOrderSelection() {
+    private static int getOrderSelection(Class type) {
         println("Predefined orders:");
-        println(orders);
+        if (type.getSimpleName().equals("Item"))
+            println(ordersForItems);
+        else
+            println(ordersForPurchases);
         print(end);
         try {
             int selection = scanner.nextInt();
             if (selection > 7 || selection < 1) {
                 printSelectionError();
-                getOrderSelection();
+                getOrderSelection(type);
             }
             return selection;
         } catch (InputMismatchException e) {
             scanner.nextLine();
             printInputMismatchError();
-            return getOrderSelection();
+            return getOrderSelection(type);
         }
     }
 
-    private static long getId(String specification) {
+    private static long getLong(String specification) {
         print("Enter " + specification + " id: ");
         long id = 0L;
         try {
             id = scanner.nextLong();
-            if (id < 0) {
+            if (id < -1) {
                 printError("Amount can't be negative number.");
-                getId(specification);
+                getLong(specification);
+            } else if (id == -1) {
+                throw new WantToExit();
             }
         } catch (InputMismatchException e) {
             scanner.nextLine();
             printInputMismatchError();
-            getId(specification);
+            getLong(specification);
         }
         return id;
     }
@@ -486,5 +462,11 @@ public class Main {
             return getCategory();
         }
         return Category.values()[selection - 1];
+    }
+
+    static class WantToExit extends RuntimeException {
+        public WantToExit() {
+            super("Returning to main menu...");
+        }
     }
 }

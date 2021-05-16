@@ -14,13 +14,13 @@ public final class Generator {
     public static void generateDummyData(Bravo bravo) {
         long startingID = id;
         Random random = new Random();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
             bravo.addItem("Item" + i,
                     random.nextDouble() * Math.pow(10, Math.abs(random.nextInt(4)) + 1),
                     Category.values()[random.nextInt(4)],
                     Math.abs(random.nextInt(10000)) + 1);
         }
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 100; i++) {
             int year = random.nextInt(20) + 2000;
             int month = random.nextInt(12) + 1;
             int dayOfMonth = random.nextInt(28) + 1;
@@ -31,8 +31,8 @@ public final class Generator {
                 try {
                     PurchaseItem purchaseItem = new PurchaseItem(bravo.getItem(random.nextInt(100) + startingID), random.nextInt(100) + 1);
                     purchase.addPurchaseItem(purchaseItem);
-                } catch (PurchaseItem.OutOfStockException e) {
-                    System.out.println("Error");
+                } catch (PurchaseItem.OutOfStockException ignored) {
+
                 }
             }
             bravo.addPurchase(purchase);

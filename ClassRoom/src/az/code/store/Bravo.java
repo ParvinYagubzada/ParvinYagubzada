@@ -91,10 +91,14 @@ public class Bravo implements Marketable {
     }
 
     @Override
-    public void returnPurchase(long purchaseId) {
+    public void returnPurchase(long purchaseId) throws Exception {
         Purchase purchase = purchases.get(purchaseId);
-        purchase.deactivate();
-        purchase.returnAllItems();
+        if (purchase.isActive()) {
+            purchase.deactivate();
+            purchase.returnAllItems();
+        } else {
+            throw new Exception("This purchase already refunded!");
+        }
     }
 
     @Override

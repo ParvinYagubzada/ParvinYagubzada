@@ -25,7 +25,7 @@ public interface Marketable {
 
     void removeItem(Purchase purchase, long itemId, int quantity);
 
-    void returnPurchase(long purchaseId);
+    void returnPurchase(long purchaseId) throws Exception;
 
     Collection<Purchase> getAllPurchases(int count);
 
