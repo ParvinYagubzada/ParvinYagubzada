@@ -8,7 +8,7 @@ public final class Printer {
     public static final String menu = Color.BLUE.asString + """
             \t1. Processes on Items.
             \t2. Processes on Purchases.
-            \t3. Owner privileges.""" + Color.YELLOW.asString + """
+            \t3. Processes on Bravo. Owner privileges. Requires login.""" + Color.YELLOW.asString + """
                         
             \t0. Exit.
             """ + Color.RESET.asString;
@@ -35,6 +35,17 @@ public final class Printer {
                         
             \t0. Back.
             """ + Color.RESET.asString;
+    public static final String processOnBravo = Color.BLUE.asString + """
+            \t1. Add new item.
+            \t2. Edit item.
+            \t3. Remove item.
+            \t4. Select all items.
+            \t5. Select items by categories.
+            \t6. Select items by price range.
+            \t7. Select items by item name.""" + Color.YELLOW.asString + """
+                        
+            \t0. Back.
+            """ + Color.RESET.asString;
     public static final String ordersForItems = Color.BLUE.asString + """
             \t\t SORT BY:
             \t1. Price.
@@ -45,7 +56,6 @@ public final class Printer {
             \t6. Descending Quantity.
             \t7. ID (Default)
             """ + Color.RESET.asString;
-
     public static final String ordersForPurchases = Color.BLUE.asString + """
             \t\t SORT BY:
             \t1. Amount.

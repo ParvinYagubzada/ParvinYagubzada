@@ -41,6 +41,11 @@ public class Main {
                         scanner.nextLine();
                         operationOnPurchase(input);
                         break;
+                    case 3:
+                        printMenu(processOnBravo);
+                        input = scanner.nextInt();
+                        scanner.nextLine();
+                        operationOnBravo(input);
                     default:
                         printSelectionError();
                 }
@@ -201,6 +206,10 @@ public class Main {
             default:
                 printSelectionError();
         }
+    }
+
+    public static void operationOnBravo(int selection) {
+
     }
 
     private static Purchase checkPurchaseId() {
