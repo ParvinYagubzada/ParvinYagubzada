@@ -3,6 +3,7 @@ package az.code.store;
 import java.time.LocalDateTime;
 import java.util.Collection;
 
+import java.util.Comparator;
 import java.util.List;
 
 public interface Marketable {
@@ -15,6 +16,8 @@ public interface Marketable {
 
     Collection<Item> getAllItems(int count);
 
+    List<Item> getAllItems(int count, Comparator<Item> order);
+
     List<Item> getItems(Category category);
 
     List<Item> getItems(double minPrice, double maxPrice);
@@ -23,11 +26,11 @@ public interface Marketable {
 
     void addPurchase(Purchase purchase);
 
-    void removeItem(Purchase purchase, long itemId, int quantity);
-
     void returnPurchase(long purchaseId) throws Exception;
 
     Collection<Purchase> getAllPurchases(int count);
+
+    List<Purchase> getAllPurchases(int count, Comparator<Purchase> order);
 
     List<Purchase> getPurchases(LocalDateTime start, LocalDateTime end);
 

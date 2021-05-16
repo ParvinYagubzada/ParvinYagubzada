@@ -24,8 +24,8 @@ public class Purchase {
     }
 
     public static Comparator<Purchase>[] orders = new Comparator[6];
-    public static Comparator<Purchase> sortByAmount = (base, second) -> (int) (base.amount - second.amount);
-    public static Comparator<Purchase> sortByAmountDESC = (base, second) -> (int) (second.amount - base.amount);
+    public static Comparator<Purchase> sortByAmount = (base, second) -> (Double.compare(base.amount, second.amount));
+    public static Comparator<Purchase> sortByAmountDESC = (base, second) -> (Double.compare(second.amount, base.amount));
     public static Comparator<Purchase> sortByTime = (base, second) -> base.purchaseTime.compareTo(second.purchaseTime);
     public static Comparator<Purchase> sortByTimeDESC = (base, second) -> second.purchaseTime.compareTo(base.purchaseTime);
     public static Comparator<Purchase> inactiveFirst = (base, second) -> asInt(base.isActive) - asInt(second.isActive);
