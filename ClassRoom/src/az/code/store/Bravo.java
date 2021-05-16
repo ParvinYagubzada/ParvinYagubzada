@@ -15,8 +15,8 @@ public class Bravo implements Marketable {
     private final HashMap<Long, Item> items;
     private Long totalIncome = 0L;
     private Long totalSoldItemCount = 0L;
-    private final String username = hashString("Admin");
-    private String password = hashString("Admin");
+    private final String username = hashString("admin");
+    private String password = hashString("admin");
 
     public Bravo() {
         this.purchases = new HashMap<>();
@@ -29,6 +29,10 @@ public class Bravo implements Marketable {
 
     public void increaseSoldItemCount(int count) {
         totalSoldItemCount += count;
+    }
+
+    public void setPassword(String password) {
+        this.password = hashString(password);
     }
 
     public long getTotalIncome() {

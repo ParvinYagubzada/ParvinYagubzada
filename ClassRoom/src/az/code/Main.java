@@ -1,16 +1,16 @@
 package az.code;
 
 import az.code.store.*;
+import az.code.store.Bravo.LoginError;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.regex.Pattern;
 
-import static az.code.store.Bravo.*;
+import static az.code.store.Bravo.IncomeStatisticsHolder;
 import static az.code.store.Printer.*;
-
-import az.code.store.Bravo.LoginError;
 
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);
@@ -233,7 +233,9 @@ public class Main {
                 println();
                 break;
             case 4:
-
+                String password = getPassword();
+                bravo.setPassword(password);
+                break;
             default:
                 printSelectionError();
         }
@@ -433,6 +435,16 @@ public class Main {
             printInputMismatchError();
             return getOrderSelection(type);
         }
+    }
+
+    private static String getPassword() {
+        print("Enter new password: ");
+        String pass = scanner.nextLine();
+        Pattern pattern = Pattern.compile("(?=.*\\d{3,})(?=\\S+$).{8,}");
+        if (pattern.matcher(pass).matches())
+            return pass;
+        printError("Password needs to be at least 8 characters and it has to have at least 3 digits.");
+        return getPassword();
     }
 
     private static long getLong(String specification) {
