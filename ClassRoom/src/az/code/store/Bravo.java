@@ -87,7 +87,7 @@ public class Bravo implements Marketable {
 
     @Override
     public void removeItem(Purchase purchase, long itemId, int quantity) {
-        //purchase.returnItem(itemId, quantity);TODO
+        //purchase.returnItem(itemId, quantity);TODO 2 DELETE AFTER TESTING!
     }
 
     @Override
@@ -98,8 +98,10 @@ public class Bravo implements Marketable {
     }
 
     @Override
-    public Collection<Purchase> getAllPurchases() {
-        return purchases.values();
+    public Collection<Purchase> getAllPurchases(int count) {
+        if (count > purchases.size())
+            count = purchases.size();
+        return new LinkedList<>(purchases.values()).subList(0, count);
     }
 
     @Override

@@ -3,7 +3,7 @@ package az.code.store;
 import java.util.Comparator;
 import java.util.InputMismatchException;
 
-public class Item implements Comparable<Item> {
+public class Item implements Comparable<Item>, Filterable<Item> {
     private final long id;
     private String name;
     private double price;
@@ -88,5 +88,10 @@ public class Item implements Comparable<Item> {
     @Override
     public int compareTo(Item second) {
         return (int) (id - second.id);
+    }
+
+    @Override
+    public Comparator<Item>[] getOrders() {
+        return orders;
     }
 }

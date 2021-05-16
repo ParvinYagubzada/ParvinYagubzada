@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Purchase {
+public class Purchase implements Filterable<Purchase>{
     private final long id;
     private final Map<Long, PurchaseItem> purchaseItems;
     private double amount;
@@ -77,5 +77,10 @@ public class Purchase {
 
     public LocalDateTime getPurchaseDate() {
         return purchaseTime;
+    }
+
+    @Override
+    public Comparator<Purchase>[] getOrders() {
+        return orders;
     }
 }

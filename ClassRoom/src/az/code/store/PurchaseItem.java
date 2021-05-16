@@ -1,5 +1,7 @@
 package az.code.store;
 
+import java.util.Comparator;
+
 public class PurchaseItem {
     private final long id;
     private final double price;

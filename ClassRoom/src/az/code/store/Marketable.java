@@ -1,6 +1,5 @@
 package az.code.store;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 
@@ -28,7 +27,7 @@ public interface Marketable {
 
     void returnPurchase(long purchaseId);
 
-    Collection<Purchase> getAllPurchases();
+    Collection<Purchase> getAllPurchases(int count);
 
     List<Purchase> getPurchases(LocalDateTime start, LocalDateTime end);
 

@@ -12,6 +12,7 @@ public final class Generator {
     }
 
     public static void generateDummyData(Bravo bravo) {
+        long startingID = id;
         Random random = new Random();
         for (int i = 0; i < 100; i++) {
             bravo.addItem("Item" + i,
@@ -28,7 +29,7 @@ public final class Generator {
             Purchase purchase = new Purchase(LocalDateTime.of(year, month, dayOfMonth, hour, minute));
             for (int j = 0; j < random.nextInt(25) + 1; j++) {
                 try {
-                    PurchaseItem purchaseItem = new PurchaseItem(bravo.getItem(random.nextInt(100) + 1), random.nextInt(100) + 1);
+                    PurchaseItem purchaseItem = new PurchaseItem(bravo.getItem(random.nextInt(100) + startingID), random.nextInt(100) + 1);
                     purchase.addPurchaseItem(purchaseItem);
                 } catch (PurchaseItem.OutOfStockException e) {
                     System.out.println("Error");

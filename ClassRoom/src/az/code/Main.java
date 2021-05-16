@@ -129,8 +129,10 @@ public class Main {
                 switch (input) {
                     case "Y":
                         printOrderedItems(count);
+                        break;
                     case "N":
                         printAllItems(bravo.getAllItems(count));
+                        break;
                 }
                 break;
             case 5:
@@ -189,7 +191,15 @@ public class Main {
                 break;
             case 4:
                 printSelected("Select all purchases.");
-                printALlPurchases(bravo.getAllPurchases());
+                print("How many purchases do you want to see: ");
+                int count = scanner.nextInt();
+                scanner.nextLine();
+                String input = askForConfirmation();
+                switch (input) {
+                    case "Y":
+                        printOrdered(count, Item.class);
+                }
+                printALlPurchases(bravo.getAllPurchases(count));
                 break;
             case 5:
                 printSelected("Select purchases by Date range.");
@@ -301,7 +311,7 @@ public class Main {
 
     private static void printAllPurchaseItems(Collection<PurchaseItem> purchaseItems) {
         println("Items:\n");
-        for (PurchaseItem purchaseItem: purchaseItems) {
+        for (PurchaseItem purchaseItem : purchaseItems) {
             System.out.format("\tID=%10d \tNAME=%15s \tCATEGORY=%20s \tQUANTITY=%15d \tPRICE=%10.2f \t%10s\n",
                     purchaseItem.getId(),
                     purchaseItem.getItem().getName(),
@@ -351,17 +361,40 @@ public class Main {
         return "";
     }
 
+    private static void printOrdered(int count, Class<Filterable> type) {
+        int orderSelection = getOrderSelection();
+        if (orderSelection < 7 && orderSelection > 0) {
+            orderFilterable(type);
+        } else {
+            printAllItems(bravo.getAllItems(count));
+        }
+    }
+
+    private static <T extends Filterable> void orderFilterable(T filterable, int orderSelection, int count) {
+        Comparator<T> order = filterable.getOrders()[orderSelection];
+        List elements;
+        if (filterable instanceof Item)
+            elements = new ArrayList<>(bravo.getAllItems(count));
+        else
+            elements = new ArrayList<>(bravo.getAllPurchases(count));
+        elements.sort(order);
+        printFiltered(elements);
+    }
+
+    public static void printFiltered(List list) {
+        if (list.get(0) instanceof Item)
+            printAllItems(list);
+        else
+            printALlPurchases(list);
+    }
+
     private static void printOrderedItems(int count) {
         int orderSelection = getOrderSelection();
         if (orderSelection < 7 && orderSelection > 0) {
             Comparator<Item> order = Item.orders[orderSelection - 1];
-            try {
-                List<Item> elements = new ArrayList<>(bravo.getAllItems(count));
-                elements.sort(order);
-                printAllItems(elements);
-            } catch (IndexOutOfBoundsException e) {
-                printError("You can't request items more than you have.");
-            }
+            List<Item> elements = new ArrayList<>(bravo.getAllItems(count));
+            elements.sort(order);
+            printAllItems(elements);
         } else {
             printAllItems(bravo.getAllItems(count));
         }
