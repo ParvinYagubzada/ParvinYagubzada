@@ -1,6 +1,10 @@
 package az.code.store;
 
+import az.code.Color;
+
 import static az.code.store.Printer.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -12,7 +16,7 @@ public class Bravo implements Marketable {
     private Long totalIncome = 0L;
     private Long totalSoldItemCount = 0L;
     private final String username = hashString("Admin");
-    private String password = hashString("PasswordAdmin123");
+    private String password = hashString("Admin");
 
     public Bravo() {
         this.purchases = new HashMap<>();
@@ -40,6 +44,37 @@ public class Bravo implements Marketable {
         password = hashString(password);
         if (!username.equals(this.username) || !password.equals(this.password))
             throw new LoginError();
+    }
+
+    public List<IncomeStatisticsHolder> getIncomeStatistics(LocalDateTime start, LocalDateTime end) {
+        List<IncomeStatisticsHolder> holder = new LinkedList<>();
+        end = end.toLocalDate().atTime(23, 59);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        LocalDateTime endOfMonth = start
+                .minusDays(start.getDayOfMonth() - 1)
+                .plusMonths(1)
+                .minusDays(1)
+                .toLocalDate()
+                .atTime(23, 59);
+        while (start.isBefore(end)) {
+            long amount = 0L;
+            for (Purchase purchase : purchases.values()) {
+                if (purchase.getPurchaseDate().compareTo(start) >= 0 &&
+                        purchase.getPurchaseDate().compareTo(endOfMonth) <= 0) {
+                    amount += purchase.getAmount();
+                }
+            }
+            holder.add(new IncomeStatisticsHolder(
+                    amount, start.toLocalDate(),
+                    endOfMonth.toLocalDate())
+            );
+            start = endOfMonth.plusMinutes(1);
+            if (endOfMonth.plusMonths(1).compareTo(end) <= 0)
+                endOfMonth = endOfMonth.plusMonths(1);
+            else
+                endOfMonth = end;
+        }
+        return holder;
     }
 
     @Override
@@ -178,7 +213,28 @@ public class Bravo implements Marketable {
         return purchases.get(id);
     }
 
-    public class LoginError extends Exception {
+    public static class IncomeStatisticsHolder {
+        private final long amount;
+        private final LocalDate startDate;
+        private final LocalDate endDate;
+
+        public IncomeStatisticsHolder(long amount, LocalDate startDate, LocalDate endDate) {
+            this.amount = amount;
+            this.startDate = startDate;
+            this.endDate = endDate;
+        }
+
+        @Override
+        public String toString() {
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+            return "\tFrom %s date to %s date total income is %s".formatted(
+                    colorString(Color.GREEN, this.startDate.format(dtf)),
+                    colorString(Color.GREEN, this.endDate.format(dtf)),
+                    colorString(Color.CYAN, amount));
+        }
+    }
+
+    public static class LoginError extends Exception {
         public LoginError() {
             super("Username or password was wrong!");
         }

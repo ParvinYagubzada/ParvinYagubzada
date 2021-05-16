@@ -42,11 +42,8 @@ public final class Printer {
     public static final String processOnBravo = Color.BLUE.asString + """
             \t1. Show total income.
             \t2. Show total item count witch is sold.
-            \t3. Under construction.
-            \t4. Under construction.
-            \t5. Under construction.
-            \t6. Under construction.
-            \t7. Under construction.""" + Color.YELLOW.asString + """
+            \t3. Show income by Date.
+            \t4. Change password.""" + Color.YELLOW.asString + """
                         
             \t0. Back.
             """ + Color.RESET.asString;

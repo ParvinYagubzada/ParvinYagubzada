@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 
+import static az.code.store.Bravo.*;
 import static az.code.store.Printer.*;
 
 import az.code.store.Bravo.LoginError;
@@ -225,6 +226,14 @@ public class Main {
             case 2:
                 println(colorString(Color.CYAN, addBeginningEndingLine("Your sold item count is " + bravo.getTotalSoldItemCount())));
                 break;
+            case 3:
+                println();
+                for (IncomeStatisticsHolder holder : bravo.getIncomeStatistics(getDate("Start"), getDate("End")))
+                    println(holder);
+                println();
+                break;
+            case 4:
+
             default:
                 printSelectionError();
         }
@@ -468,7 +477,7 @@ public class Main {
         if (specification.equals("end"))
             extension = " 23:59";
         else
-            extension = " 00:01";
+            extension = " 00:00";
         StringBuilder input = new StringBuilder(scanner.nextLine()).append(extension);
         LocalDateTime date = null;
         try {
