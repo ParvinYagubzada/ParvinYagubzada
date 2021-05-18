@@ -9,7 +9,9 @@ import java.util.Arrays;
 public final class Printer {
     public static final String start = "Please select one of selections:\n";
     public static final String end = "Your selection:\t";
-    public static final String menu = Color.BLUE.asString + """
+    public static final String menu = Color.YELLOW.asString + """
+            If you want to return to main menu write "-1" in text fields.""" + Color.BLUE.asString + """
+            
             \t1. Processes on Items.
             \t2. Processes on Purchases.
             \t3. Processes on Bravo.""" + Color.YELLOW.asString + """

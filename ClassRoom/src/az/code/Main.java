@@ -82,6 +82,7 @@ public class Main {
                 printSelected("Add new item.");
                 Item temp = getItemFromUser();
                 bravo.addItem(temp.getName(), temp.getPrice(), temp.getCategory(), temp.getQuantity());
+                println(temp.getName() + " Named item added to DB.");
                 break;
             case 2:
                 printSelected("Edit item.");
@@ -89,6 +90,7 @@ public class Main {
                 long id = scanner.nextLong();
                 temp = getItemFromUser();
                 bravo.editItem(id, temp.getName(), temp.getPrice(), temp.getCategory(), temp.getQuantity());
+                println(temp.getName() + " Named item updated on DB.");
                 break;
             case 3:
                 printSelected("Remove item.");
@@ -118,11 +120,12 @@ public class Main {
                 break;
             case 6:
                 printSelected("Select items by price range.");
-                print("Please enter min price: ");
-                double min = scanner.nextDouble();
-                print("Please enter max price: ");
-                double max = scanner.nextDouble();
-                printAllItems(bravo.getItems(min, max));
+                double min = getPrice("minimum");
+                double max = getPrice("maximum");
+                if (min >= max)
+                    printError("Minimum amount can't be larger than maximum amount.");
+                else
+                    printAllItems(bravo.getItems(min, max));
                 break;
             case 7:
                 printSelected("Select items by item name.");
@@ -147,15 +150,22 @@ public class Main {
                 Purchase purchase = new Purchase();
                 getIds(purchase, 1);
                 bravo.addPurchase(purchase);
+                println("Purchase " + purchase.getId() + " added to DB");
                 break;
             case 2:
                 printSelected("Return item.");
                 Purchase newPurchase = new Purchase();
                 purchase = checkPurchaseId();
-                getReturnItemIds(purchase, newPurchase, 1);
-                purchase.deactivate();
-                println(newPurchase.getId());
-                bravo.addPurchase(newPurchase);
+                if (getReturnItemIds(purchase, newPurchase, 1)) {
+                    purchase.deactivate();
+                    bravo.addPurchase(newPurchase);
+                    println(colorString(Color.CYAN, "Returning process successfully completed."));
+                    printPurchase(newPurchase);
+                    printAllPurchaseItems(newPurchase.getPurchaseItems().values());
+                } else {
+                    println("Returning process failed.");
+                }
+
                 break;
             case 3:
                 printSelected("Return purchase.");
@@ -285,20 +295,23 @@ public class Main {
 
     private static final Queue<PurchaseItem> newItems = new LinkedList<>();
 
-    private static void getReturnItemIds(Purchase oldPurchase, Purchase newPurchase, int count) {
+    private static boolean getReturnItemIds(Purchase oldPurchase, Purchase newPurchase, int count) {
         println("ID of purchase item " + count + " that you want to return: ");
         try {
             long id = scanner.nextLong();
             scanner.nextLine();
             if (id == -1) {
-                for (PurchaseItem item : oldPurchase.getPurchaseItems().values()) {
-                    if (item.isActive())
-                        newPurchase.addPurchaseItem(item);
-                    else
-                        newPurchase.addPurchaseItem(newItems.poll());
+                if (newItems.size() != 0) {
+                    for (PurchaseItem item : oldPurchase.getPurchaseItems().values()) {
+                        if (item.isActive())
+                            newPurchase.addPurchaseItem(item);
+                        else
+                            newPurchase.addPurchaseItem(newItems.poll());
+                    }
+                    newItems.clear();
+                    return true;
                 }
-                newItems.clear();
-                return;
+                return false;
             }
             PurchaseItem item = oldPurchase.getPurchaseItems().get(id);
             if (item != null) {
@@ -320,6 +333,7 @@ public class Main {
             printInputMismatchError();
             getReturnItemIds(oldPurchase, newPurchase, count);
         }
+        return true;
     }
 
     private static void printAllPurchaseItems(Collection<PurchaseItem> purchaseItems) {
@@ -358,9 +372,13 @@ public class Main {
     }
 
     private static void printALlPurchases(Collection<Purchase> purchases) {
-        println("Purchases:\n");
-        for (Purchase purchase : purchases) {
-            printPurchase(purchase);
+        if (purchases.size() != 0) {
+            println("Purchases:\n");
+            for (Purchase purchase : purchases) {
+                printPurchase(purchase);
+            }
+        } else {
+            println("There are no purchases made on specified Date.");
         }
         println();
     }
@@ -466,12 +484,12 @@ public class Main {
     }
 
     private static double getPrice(String specification) {
-        print("Enter " + specification + " amount: ");
+        print("Enter " + specification + " price: ");
         double amount = 0.0;
         try {
             amount = scanner.nextDouble();
             if (amount < 0) {
-                printError("Amount can't be negative number.");
+                printError("Price can't be negative number.");
                 getPrice(specification);
             }
         } catch (InputMismatchException e) {
@@ -483,7 +501,7 @@ public class Main {
     }
 
     private static LocalDateTime getDate(String specification) {
-        print("Enter " + specification + " date: ");
+        print("Enter " + specification + " date (With this format XX.XX.XXXX): ");
         String extension;
         if (specification.equals("end"))
             extension = " 23:59";
@@ -504,8 +522,7 @@ public class Main {
         print("Please enter the item name: ");
         scanner.nextLine();
         String name = scanner.nextLine();
-        print("Please enter item price: ");
-        double price = scanner.nextDouble();
+        double price = getPrice("item");
         Category category = getCategory();
         print("Please enter quantity: ");
         int quantity = scanner.nextInt();
