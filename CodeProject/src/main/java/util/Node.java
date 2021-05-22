@@ -1,4 +1,4 @@
-package code.util;
+package util;
 
 class Node<T> {
     private final T data;

@@ -1,7 +1,7 @@
 package app;
 
-import code.util.SearchType;
-import code.util.Tree;
+import util.SearchType;
+import util.Tree;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;

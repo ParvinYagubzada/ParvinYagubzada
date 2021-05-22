@@ -1,4 +1,4 @@
-package code.util;
+package util;
 
 import app.Student;
 

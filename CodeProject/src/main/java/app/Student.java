@@ -1,6 +1,6 @@
 package app;
 
-import code.util.SearchType;
+import util.SearchType;
 
 import java.security.InvalidParameterException;
 import java.util.regex.Pattern;
