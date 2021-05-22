@@ -43,7 +43,7 @@ public class Main {
         }
     }
 
-    private static void operationCRUD() {
+    public static void operationCRUD() {
         printMenu(crud);
         try {
             switch (getSelection(4)) {
@@ -84,12 +84,11 @@ public class Main {
                     deleteStudent(getId());
                     break;
             }
-        } catch (BackToMenu ignored) {
-        }
+        } catch (BackToMenu ignored) {}
         println(returningMainMenu);
     }
 
-    private static void operationSearch() {
+    public static void operationSearch() {
         print(searchOptions);
         try {
             switch (getSelection(3)) {
@@ -105,8 +104,7 @@ public class Main {
                     search(getString("father name"), Comparator.comparing(Student::getFatherName), SearchType.FATHER);
                     break;
             }
-        } catch (BackToMenu ignored) {
-        }
+        } catch (BackToMenu ignored) {}
         println(returningMainMenu);
     }
 
@@ -114,9 +112,8 @@ public class Main {
         int selection = Integer.MIN_VALUE;
         do {
             try {
-                if (selection != Integer.MIN_VALUE) {
+                if (selection != Integer.MIN_VALUE)
                     printError("Please select only number 0 to " + limit);
-                }
                 print(end);
                 selection = scanner.nextInt();
             } catch (InputMismatchException exception) {
@@ -148,9 +145,8 @@ public class Main {
         long id = 1;
         do {
             try {
-                if (id == -2) {
+                if (id == -2)
                     printError("Please write integer number.");
-                }
                 print("Please enter student id: ");
                 id = scanner.nextLong();
             } catch (InputMismatchException exception) {
@@ -251,24 +247,12 @@ public class Main {
     public static void writeJSON() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
-//        Map<Long, Student> students = new TreeMap<>();
-//        Faker faker = new Faker(Locale.US);
-//        for (int i = 0; i < 1000; i++) {
-//            Student student = new Student(
-//                    faker.name().firstName(),
-//                    faker.name().lastName(),
-//                    faker.name().firstName(),
-//                    faker.internet().safeEmailAddress(),
-//                    faker.regexify("+994(50|51|55|70|99)[1-9]\\d{6}"));
-//            students.put(student.getId(), student);
-//        }
         writer.writeValue(Path.of("data.json").toFile(), students);
     }
 
     public static void readJSON() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        TypeReference<SortedMap<Long, Student>> reference = new TypeReference<>() {
-        };
+        TypeReference<SortedMap<Long, Student>> reference = new TypeReference<>() {};
         students = mapper.readValue(Path.of("data.json").toFile(), reference);
     }
 
